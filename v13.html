@@ -6,22 +6,8 @@
 <meta name="theme-color" content="#161925">
 <meta name="color-scheme" content="dark">
 <title>mexord ▮ v13 — achse &amp; tiefe</title>
-<meta name="description" content="Design-Sonde V13: Farb-Achse als schmales Band diagonal links unten nach rechts oben (40%), 60% reines #161925, kein Screen-Blend, Glas-Insel.">
+<meta name="description" content="Design-Sonde V13: Dunkler Grund, satte Diagonal-Achse (Violett→Pink→Orange→Gold), Glas-Insel mittig, 13 @keyframes, keine Drosselung.">
 <style>
-/* ==================================================================
-   SONDE V13 — Achse & Tiefe (mexord.blog)
-   V12-Fehler (Screenshot-Beleg): Vollflaeche bedeckt
-   (mesh-base faerbte 100% des Screens, Gradient reichte 0%→100%) +
-   screen-blend Raufe → alles Rosa, 0% dunkel statt 60%.
-   V13: Farbe als KONTROLLIERTE Achse:
-   1) Band: schmales Linearelement (26vmax hoch), diagonal
-   2) Grund: #161925 roh (die 60% bleiben physisch frei)
-   3) Radialglows begrenzt auf Achsenden (kein Vollflaechen-Mesh)
-   4) Normale Mischung, KEIN screen-Blend — Farben bleiben satt
-   Gebundene Q&A: D-001 (kein Chrome) · D-002 (Oberzeile+Dreiklang) ·
-   D-003 (radiale Glows + Linears, keine Textur/Muster) ·
-   D-005 (keine Drosselung)
-   ================================================================== */
 :root{
   --deep:#161925;
   --violet:#8500F7;
@@ -46,58 +32,57 @@ body{
 }
 ::selection{background:var(--pink);color:var(--white)}
 
-/* ================= HINTERGRUND ================= */
+/* ============ HINTERGRUND: 60% Dunkel + Diagonal-Achse ============ */
 .bg{position:fixed;inset:0;overflow:hidden;z-index:0}
 
-/* Die Farb-ACHSE: ein schmales, straffes Band diagonal */
-.achse{
-  position:absolute;
-  left:-20vmax;
-  top:44%;
-  width:140vmax;
-  height:26vmax;
-  background:linear-gradient(90deg,
-    rgba(22,25,37,0) 0%,
-    rgba(133,0,247,.78) 22%,
-    rgba(237,21,21,.88) 48%,
-    rgba(246,116,0,.85) 68%,
-    rgba(253,188,75,.8) 84%,
-    rgba(22,25,37,0) 100%);
-  transform:rotate(-21deg);
-  animation:achsePulse 9s ease-in-out infinite;
-  pointer-events:none;
+/* Achse: linearer Diagonal-Kern mit harten Stops (~35-40% Flaeche) */
+.mesh-base{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,
+    #161925 0%,
+    #161925 30%,
+    #8500F7 42%,
+    #ED1515 52%,
+    #F67400 62%,
+    #FDBC4B 70%,
+    #161925 82%,
+    #161925 100%);
+  background-size:160% 160%;
+  animation:meshFlow 22s ease-in-out infinite alternate;
 }
 
-/* Glut-Ursprung unten-links (radial, lokal) */
+/* grosser Glut-Radial links unten (lokale Dichte) */
 .ember{
   position:absolute;
-  width:46vmax;height:46vmax;left:-14vmax;bottom:-16vmax;border-radius:50%;
-  background:radial-gradient(circle,
-    rgba(246,116,0,.85) 0%,
-    rgba(237,21,21,.55) 30%,
-    rgba(133,0,247,.35) 48%,
-    rgba(133,0,247,0) 62%);
+  width:60vmax;height:60vmax;left:-14vmax;bottom:-14vmax;border-radius:50%;
+  background:radial-gradient(circle at center,
+    rgba(253,188,75,.62) 0%,
+    rgba(246,116,0,.5) 22%,
+    rgba(237,21,21,.38) 38%,
+    rgba(133,0,247,.22) 52%,
+    rgba(133,0,247,0) 64%);
+  animation:emberPulse 8s ease-in-out infinite alternate;
   pointer-events:none;
-  animation:emberBreathe 7s ease-in-out infinite;
 }
 
-/* kalter Kontrastfleck oben rechts */
+/* kalter Blau-Fleck oben rechts (einziger Kuehlpunkt) */
 .cold{
   position:absolute;
-  width:26vmax;height:26vmax;right:2%;top:12%;border-radius:50%;
-  background:radial-gradient(circle,rgba(61,174,233,.55) 0%,rgba(61,174,233,.18) 36%,rgba(61,174,233,0) 62%);
-  animation:coldPulse 11s ease-in-out infinite;
+  width:24vmax;height:24vmax;right:4%;top:10%;border-radius:50%;
+  background:radial-gradient(circle,rgba(61,174,233,.42) 0%,rgba(61,174,233,.14) 36%,rgba(61,174,233,0) 60%);
+  animation:coldPulse 12s ease-in-out infinite;
   pointer-events:none;
 }
 
-/* Vignette nur aussen */
+/* Vignette: Ecken dunkler, Mitte frei */
 .vignette{
   position:absolute;inset:0;
-  background:radial-gradient(ellipse at center,rgba(22,25,37,0) 40%,rgba(22,25,37,.42) 100%);
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(22,25,37,0) 0%, rgba(22,25,37,0) 55%, rgba(22,25,37,.35) 100%);
   pointer-events:none;
 }
 
-/* ================= GLAS-INSEL ================= */
+/* ============ GLAS-INSEL ============ */
 .stage{
   position:relative;z-index:1;
   min-height:100svh;
@@ -107,31 +92,32 @@ body{
 }
 .wobble-wrap{
   transform-origin:50% 100%;
-  animation:jelly 7s ease-in-out infinite,cardFloat 8s ease-in-out infinite alternate;
+  animation:jelly 7.5s ease-in-out infinite,cardFloat 8.5s ease-in-out infinite alternate;
   will-change:transform;
 }
 .card{
   position:relative;overflow:hidden;
-  width:min(92vw,40rem);
+  width:min(90vw,38rem);
   padding:clamp(1.8rem,6vw,3.5rem) clamp(1.3rem,5vw,3rem);
-  background:rgba(22,25,37,.48);
-  -webkit-backdrop-filter:blur(15px) saturate(1.6);
-  backdrop-filter:blur(15px) saturate(1.6);
-  border:1px solid rgba(255,255,255,.36);
-  border-top-color:rgba(255,255,255,.6);
+  background:rgba(22,25,37,.5);
+  -webkit-backdrop-filter:blur(15px) saturate(1.55);
+  backdrop-filter:blur(15px) saturate(1.55);
+  border:1px solid rgba(255,255,255,.38);
+  border-top-color:rgba(255,255,255,.65);
   border-radius:clamp(18px,3vw,24px);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.32),
-    0 30px 70px rgba(22,25,37,.55);
+    0 30px 70px rgba(22,25,37,.6);
   text-align:center;
   contain:layout paint;
   animation:cardSettle .9s ease-out backwards;
 }
 .card::before{
-  content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:34%;
-  background:linear-gradient(115deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.3) 50%,rgba(255,255,255,0) 100%);
+  content:"";
+  position:absolute;top:-20%;bottom:-20%;left:0;width:34%;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.28) 50%,rgba(255,255,255,0) 100%);
   transform:translateX(-170%) skewX(-14deg);
-  animation:sweep 6s ease-in-out 1s infinite;
+  animation:sweep 6s ease-in-out 1.2s infinite;
   pointer-events:none;
 }
 .eyebrow{
@@ -142,10 +128,10 @@ body{
   margin-bottom:clamp(1rem,3vw,1.4rem);
 }
 .statement{
-  font-size:clamp(3rem,14vw,5.6rem);
-  font-weight:900;line-height:.94;letter-spacing:-.015em;
+  font-size:clamp(2.8rem,13vw,5.4rem);
+  font-weight:900;line-height:.95;letter-spacing:-.015em;
   text-transform:uppercase;
-  text-shadow:0 2px 22px rgba(22,25,37,.6);
+  text-shadow:0 2px 22px rgba(22,25,37,.62);
 }
 .statement .line{display:block}
 .line-1{animation:reveal .75s var(--overshoot) .3s backwards}
@@ -158,7 +144,7 @@ body{
   text-shadow:0 0 30px rgba(237,21,21,.95);
   box-shadow:0 0 30px rgba(237,21,21,.5),inset 0 1px 0 rgba(255,255,255,.2);
   animation:revealHot .8s var(--overshoot) 1.1s backwards,
-            pinkHalo 2.8s ease-in-out 2s infinite;
+            pinkHalo 3s ease-in-out 2s infinite;
 }
 .prompt{
   margin-top:clamp(1.2rem,3.5vw,1.8rem);
@@ -177,16 +163,16 @@ body{
   animation:blink 1.05s steps(1) infinite;
 }
 
-/* ================= Status-Insel ================= */
+/* ============ Status-Pille ============ */
 .status{
   position:fixed;left:clamp(.9rem,3vw,2rem);
   bottom:calc(clamp(.9rem,3vw,2rem) + env(safe-area-inset-bottom));
   z-index:2;display:inline-flex;align-items:center;gap:.55rem;
   padding:.65rem 1rem;
-  background:rgba(22,25,37,.55);
-  -webkit-backdrop-filter:blur(15px) saturate(1.6);
-  backdrop-filter:blur(15px) saturate(1.6);
-  border:1px solid rgba(255,255,255,.3);
+  background:rgba(22,25,37,.58);
+  -webkit-backdrop-filter:blur(14px) saturate(1.55);
+  backdrop-filter:blur(14px) saturate(1.55);
+  border:1px solid rgba(255,255,255,.32);
   border-radius:14px;
   box-shadow:0 14px 34px rgba(22,25,37,.5),inset 0 1px 0 rgba(255,255,255,.22);
   font-family:ui-monospace,"Cascadia Mono",Menlo,monospace;
@@ -201,18 +187,18 @@ body{
 }
 .status b{color:var(--yellow);text-shadow:0 0 10px rgba(201,206,59,.6)}
 
-/* ================= Keyframes: 13 ================= */
-@keyframes achsePulse{
-  0%,100%{opacity:.9}
-  50%{opacity:1}
+/* ============ Keyframes ============ */
+@keyframes meshFlow{
+  0%{background-position:0% 0%}
+  100%{background-position:30% 30%}
 }
-@keyframes emberBreathe{
-  0%,100%{transform:scale(1);opacity:.9}
-  50%{transform:scale(1.07);opacity:1}
+@keyframes emberPulse{
+  0%{transform:scale(1);opacity:.9}
+  100%{transform:scale(1.06);opacity:1}
 }
 @keyframes coldPulse{
-  0%,100%{opacity:.72;transform:scale(1)}
-  50%{opacity:1;transform:scale(1.12)}
+  0%,100%{opacity:.7;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.1)}
 }
 @keyframes jelly{
   0%,100%{transform:skewX(0) scale(1)}
@@ -254,7 +240,7 @@ body{
   50%{opacity:1;transform:scale(1.12)}
 }
 
-/* ================= Layout ================= */
+/* ============ Layout ============ */
 @media (min-width:720px){
   .statement{letter-spacing:-.025em}
 }
@@ -267,8 +253,8 @@ body{
 </head>
 <body>
 <div class="bg" aria-hidden="true">
+  <div class="mesh-base"></div>
   <div class="ember"></div>
-  <div class="achse"></div>
   <div class="cold"></div>
   <div class="vignette"></div>
 </div>
