@@ -5,48 +5,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#161925">
 <meta name="color-scheme" content="dark">
-<title>mexord ▮ sonde v2 — sweet plasma / dr460nized energy</title>
-<meta name="description" content="Design-Sonde V2 für mexord.blog: Garuda-Sweet-Neon-Artwork, Glas-Inseln, KWin-Wobble, 20 Animationen, reduced-motion-Fallback.">
+<title>mexord ▮ sonde v3 — dr460nized energy</title>
+<meta name="description" content="Design-Sonde V3 für mexord.blog: gesättigtes Garuda-Sweet-Neon-Artwork, durchscheinende Glas-Inseln, animierter Neon-Rahmen, 23 Animationen, reduced-motion-Fallback.">
 <style>
 /* ==================================================================
-   SONDE V2 — Sweet Plasma / Dr460nized Energy (mexord.blog)
-   Farben: ausschließlich sweet.colors (design-tokens.md)
-   Team-Brainstorm 2026-10-28:
-   · Wanda: Glas-Alpha 0.22, screen-Blend-Glows, Garuda-Flamme,
-     Farbdisziplin (1 Fokuspunkt: KLARHEIT.)
-   · Franka: Wobble als kontinuierliches KWin-Jelly, Glasschein-Sweep,
-     Neon-Zyklus, 20 Keyframes, svh/safe-area, <560px-Layout,
-     touch-statt-hover, nur transform/opacity animiert
-   · Becky: Inhalte aus mockData-JSON rendern (Hugo-Taxonomie-Vorbereitung),
-     Ticker aria-hidden, genau ein h1, semantische Landmarks
-   D-001: kein Window-Chrome · D-002: Statement-Set B ·
-   D-003: berechnetes Artwork, keine Muster
+   SONDE V3 — Dr460nized Energy (mexord.blog)
+   V3-Korrektur gegen V2-Screenshot:
+   · Neon-Bloom sitzt DIREKT HINTER der Karte (V2: Karte schwebte
+     über der dunkelsten Bildstelle -> Glas wirkte opak)
+   · Glas alpha .18 mit saturate(1.6): Hintergrund durchscheinend
+   · Animierter Neon-Gradient-Rahmen statt grauem Border
+   · 3 schwebende Fenster-Inseln (Desktop-Gefühl) statt Text-Chips
+   · Aurora-Ebene + 3 farbige Orbs, maximale Sättigung
+   Farben: ausschließlich sweet.colors · D-001/002/003 unverändert
    ================================================================== */
+@property --borderAngle{
+  syntax:"<angle>";
+  initial-value:0deg;
+  inherits:false;
+}
 :root{
-  /* Palette (sweet.colors) */
-  --sweet-win-bg-normal:#161925;
-  --sweet-view-bg-normal:#181B28;
-  --sweet-violet:#8500F7;               /* Signaturviolett */
-  --sweet-neon-pink:#ED1515;            /* Neon-Pink/Rot */
-  --sweet-hot-orange:#F67400;           /* Hot-Orange */
-  --sweet-neon-yellow:#C9CE3B;          /* Neongelb */
-  --sweet-green:#11D116;                /* Statusgrün */
-  --sweet-blue:#3DAEE9;                 /* Aktivblau */
-  --sweet-gold:#FDBC4B;                 /* Selection-Gold */
+  --sweet-deep:#161925;
+  --sweet-glass:#181B28;
+  --sweet-violet:#8500F7;
+  --sweet-pink:#ED1515;
+  --sweet-orange:#F67400;
+  --sweet-yellow:#C9CE3B;
+  --sweet-green:#11D116;
+  --sweet-blue:#3DAEE9;
+  --sweet-gold:#FDBC4B;
   --sweet-white:#FFFFFF;
-  --sweet-dim:#888888;                  /* Sekundärtext */
-  --sweet-tip-dim:#BDC3C7;              /* Tooltip-Text */
-  /* Glas-Physik (Wanda: alpha 0.22 — V1 0.6 war opak) */
-  --glass-bg:rgba(24,27,40,.22);
-  --glass-border:rgba(255,255,255,.14);
-  --glass-top-light:inset 0 1px 0 rgba(255,255,255,.25);
-  --glass-blur:blur(22px) saturate(1.45);
+  --sweet-tip:#BDC3C7;
   --overshoot:cubic-bezier(.34,1.56,.64,1);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
 body{
-  background:var(--sweet-win-bg-normal);
+  background:var(--sweet-deep);
   color:var(--sweet-white);
   font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
   overflow-x:hidden;
@@ -54,243 +49,311 @@ body{
 }
 ::selection{background:var(--sweet-violet);color:var(--sweet-white)}
 
-/* ---------- ARTWORK: Garuda-Flamme, berechnet (D-003) ---------- */
+/* ================= ARTWORK: gesättigte Neon-Bühne ================= */
 .bg{position:fixed;inset:0;overflow:hidden;z-index:0}
+.aurora{ /* rotierende Farbschicht, screen-geblendet */
+  position:absolute;inset:-45%;
+  background:conic-gradient(from 0deg,
+    rgba(133,0,247,.34) 0deg,
+    rgba(237,21,21,.30) 72deg,
+    rgba(246,116,0,.26) 140deg,
+    rgba(253,188,75,.20) 205deg,
+    rgba(133,0,247,.34) 300deg,
+    rgba(133,0,247,.34) 360deg);
+  filter:blur(90px);
+  mix-blend-mode:screen;
+  animation:auroraSpin 60s linear infinite,auroraHue 26s ease-in-out infinite alternate;
+}
 .glow{position:absolute;border-radius:50%;pointer-events:none;mix-blend-mode:screen}
-.glow-a{ /* Signaturviolett, links unten, dominant */
-  width:90vmax;height:90vmax;left:-20vmax;bottom:-25vmax;
-  background:radial-gradient(circle,rgba(133,0,247,.55) 0%,rgba(133,0,247,.28) 30%,rgba(133,0,247,0) 60%);
-  animation:bgDrift 38s ease-in-out infinite;
+.glow-core{ /* DER Bloom: Pink/Violett-Kern hinter der Hero-Karte */
+  width:95vmax;height:95vmax;left:50%;top:46%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,
+    rgba(237,21,21,.72) 0%,
+    rgba(133,0,247,.62) 26%,
+    rgba(133,0,247,.34) 46%,
+    rgba(133,0,247,0) 68%);
+  animation:flamePulse 9s ease-in-out infinite;
 }
-.glow-b{ /* Neon-Pink, rechts oben — die Flamme */
-  width:70vmax;height:70vmax;right:-15vmax;top:-20vmax;
-  background:radial-gradient(circle,rgba(237,21,21,.45) 0%,rgba(237,21,21,.2) 32%,rgba(237,21,21,0) 58%);
-  animation:bgDriftAlt 47s ease-in-out infinite;
+.glow-orange{ /* heiße rechte Kante */
+  width:60vmax;height:60vmax;right:-18vmax;top:8%;
+  background:radial-gradient(circle,rgba(246,116,0,.5) 0%,rgba(246,116,0,0) 58%);
+  animation:bgDriftAlt 44s ease-in-out infinite;
 }
-.glow-c{ /* Hot-Orange-Kern zwischen Rot und Violett */
-  width:50vmax;height:50vmax;right:-5vmax;top:38%;
-  background:radial-gradient(circle,rgba(246,116,0,.32) 0%,rgba(246,116,0,0) 55%);
-  animation:glowDriftC 53s ease-in-out infinite reverse;
+.glow-deep{ /* tiefes Blauviolett unten */
+  width:80vmax;height:80vmax;left:-22vmax;bottom:-30vmax;
+  background:radial-gradient(circle,rgba(41,128,185,.4) 0%,rgba(133,0,247,.22) 38%,rgba(133,0,247,0) 62%);
+  animation:bgDrift 52s ease-in-out infinite;
 }
-.orb{ /* kleine schwebende Akzent-Orbs */
-  position:absolute;border-radius:50%;pointer-events:none;mix-blend-mode:screen;
-  filter:blur(40px);
+.orb{position:absolute;border-radius:50%;pointer-events:none;mix-blend-mode:screen;filter:blur(34px)}
+.orb-gold{
+  width:16vmax;height:16vmax;left:10%;top:12%;
+  background:rgba(253,188,75,.5);
+  animation:orbFloatGold 13s ease-in-out infinite alternate;
 }
-.orb-1{ /* Gold */
-  width:18vmax;height:18vmax;left:12%;top:14%;
-  background:rgba(253,188,75,.28);
-  animation:orbFloat1 14s ease-in-out infinite alternate;
+.orb-blue{
+  width:13vmax;height:13vmax;right:14%;bottom:16%;
+  background:rgba(61,174,233,.45);
+  animation:orbFloatBlue 17s ease-in-out infinite alternate;
 }
-.orb-2{ /* Aktivblau */
-  width:14vmax;height:14vmax;right:18%;bottom:12%;
-  background:rgba(61,174,233,.25);
-  animation:orbFloat2 19s ease-in-out infinite alternate;
+.orb-yellow{
+  width:10vmax;height:10vmax;right:24%;top:10%;
+  background:rgba(201,206,59,.4);
+  animation:orbFloatYellow 21s ease-in-out infinite alternate;
 }
-.vignette{ /* nur unten, hält Statement-Zone lesbar */
+.vignette{ /* nur Kanten, Mitte bleibt hell */
   position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(22,25,37,.25) 0%,rgba(22,25,37,0) 30%,rgba(22,25,37,0) 72%,rgba(22,25,37,.55) 100%);
+  background:radial-gradient(ellipse at center,rgba(22,25,37,0) 30%,rgba(22,25,37,.42) 100%);
 }
 
-/* ---------- Bühne ---------- */
+/* ================= Fenster-Inseln (Desktop-Gefühl) ================= */
+.isle{
+  position:fixed;z-index:2;
+  background:rgba(24,27,40,.28);
+  -webkit-backdrop-filter:blur(22px) saturate(1.6);
+  backdrop-filter:blur(22px) saturate(1.6);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:14px;
+  box-shadow:0 18px 44px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.22);
+  font-family:ui-monospace,"Cascadia Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  animation:chipPopIn .6s var(--overshoot) calc(.8s + var(--i,0)*.22s) backwards;
+}
+.isle-term{
+  top:calc(3rem + env(safe-area-inset-top));left:clamp(.8rem,4vw,4rem);
+  --i:0;max-width:min(78vw,19rem);
+  padding:.9rem 1.1rem;
+  font-size:.74rem;line-height:1.7;color:var(--sweet-tip);
+  animation:chipPopIn .6s var(--overshoot) .8s backwards,winBobA 6.5s ease-in-out 1.6s infinite alternate;
+  will-change:transform;
+}
+.isle-term .ln-u{color:var(--sweet-green)}
+.isle-term .ln-p{color:var(--sweet-blue)}
+.isle-term .ln-d{color:var(--sweet-orange)}
+.isle-term .ok{color:var(--sweet-yellow)}
+.isle-stats{
+  top:calc(6.5rem + env(safe-area-inset-top));right:clamp(.8rem,4vw,4rem);
+  --i:1;display:flex;gap:1.1rem;padding:.85rem 1.2rem;
+  animation:chipPopIn .6s var(--overshoot) 1.02s backwards,winBobB 7.8s ease-in-out 1.9s infinite alternate;
+  will-change:transform;
+}
+.isle-stats .st{text-align:center}
+.isle-stats .st b{
+  display:block;font-size:1.15rem;font-weight:800;
+  color:var(--sweet-gold);
+  text-shadow:0 0 14px rgba(253,188,75,.55);
+}
+.isle-stats .st span{font-size:.6rem;letter-spacing:.22em;color:var(--sweet-tip)}
+.isle-quote{
+  bottom:calc(3.4rem + env(safe-area-inset-bottom));left:clamp(.8rem,4vw,4rem);
+  --i:2;max-width:min(80vw,21rem);
+  padding:.8rem 1.1rem;font-size:.74rem;color:var(--sweet-tip);
+  animation:chipPopIn .6s var(--overshoot) 1.24s backwards,winBobC 9s ease-in-out 2.1s infinite alternate;
+  will-change:transform;
+}
+.isle-quote b{color:var(--sweet-pink);letter-spacing:.12em}
+.isle-quote .mx{color:var(--sweet-violet)}
+
+/* ================= Bühne + Hero-Karte ================= */
 .stage{
   position:relative;z-index:1;
   min-height:100svh;
   display:grid;place-items:center;
-  padding:calc(clamp(1rem,4vw,3rem) + env(safe-area-inset-top)) clamp(1rem,4vw,3rem) calc(clamp(4.5rem,10vh,6rem) + env(safe-area-inset-bottom));
+  padding:calc(clamp(6.5rem,14vh,9rem) + env(safe-area-inset-top)) clamp(1rem,4vw,3rem) calc(clamp(7rem,14vh,9rem) + env(safe-area-inset-bottom));
 }
-.float-wrap{animation:cardMicrotilt 8s ease-in-out infinite alternate;will-change:transform}
-
-/* ---------- Hauptkarte: Glas-Insel ---------- */
+.wobble-wrap{
+  transform-origin:50% 100%;
+  animation:wobbleLoop 5.2s ease-in-out infinite,microTilt 9s ease-in-out infinite alternate;
+  will-change:transform;
+}
 .card{
   position:relative;overflow:hidden;
   width:min(92vw,44rem);
-  padding:clamp(1.75rem,6vw,3.75rem) clamp(1.25rem,5vw,3.25rem);
-  background:var(--glass-bg);
-  -webkit-backdrop-filter:var(--glass-blur);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  border-radius:clamp(16px,3vw,24px);
-  box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 40px rgba(133,0,247,.18),var(--glass-top-light);
+  padding:clamp(1.9rem,6vw,3.75rem) clamp(1.25rem,5vw,3.25rem);
+  background:linear-gradient(rgba(24,27,40,.18),rgba(24,27,40,.18)) padding-box,
+             conic-gradient(from var(--borderAngle),
+               #8500F7 0%,
+               #ED1515 28%,
+               #F67400 52%,
+               #FDBC4B 72%,
+               #8500F7 100%) border-box;
+  border:2px solid transparent;
+  border-radius:clamp(18px,3vw,26px);
+  -webkit-backdrop-filter:blur(22px) saturate(1.6);
+  backdrop-filter:blur(22px) saturate(1.6);
+  box-shadow:0 26px 70px rgba(0,0,0,.5),
+             0 0 55px rgba(133,0,247,.28),
+             inset 0 1px 0 rgba(255,255,255,.28);
   text-align:center;
-  transform-origin:50% 100%;                     /* KWin-Jelly-Ankerpunkt */
   contain:layout paint;
-  will-change:transform;
-  animation:wobbleLoop 2.4s ease-in-out infinite,
-            borderPulse 3.2s ease-in-out infinite,
-            glowDrift 10s linear infinite;
+  animation:borderSpin 7s linear infinite,statementGlowDrift 10s linear infinite;
 }
 .card::before{ /* Glasschein-Sweep */
-  content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:38%;
-  background:linear-gradient(115deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.12) 50%,rgba(255,255,255,0) 100%);
-  transform:translateX(-160%) skewX(-12deg);
-  animation:glassSweep 6s ease-in-out 1.2s infinite;
+  content:"";position:absolute;top:-25%;bottom:-25%;left:0;width:34%;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.13) 50%,rgba(255,255,255,0) 100%);
+  transform:translateX(-170%) skewX(-12deg);
+  animation:glassSweep 5.5s ease-in-out 1.4s infinite;
   pointer-events:none;
 }
 .eyebrow{
   font-size:clamp(.68rem,2.3vw,.92rem);
-  font-weight:700;letter-spacing:.25em;text-transform:uppercase;
+  font-weight:700;letter-spacing:.3em;text-transform:uppercase;
   color:var(--sweet-blue);
   margin-bottom:clamp(1rem,3vw,1.6rem);
 }
 .statement{
-  font-size:clamp(2.4rem,11vw,5.5rem);
-  font-weight:900;line-height:.95;letter-spacing:-.015em;
+  font-size:clamp(2.6rem,12vw,6rem);
+  font-weight:900;line-height:.94;letter-spacing:-.015em;
   text-transform:uppercase;
 }
-.statement .line{display:block;animation:statementIn .9s ease-out backwards}
-.statement .line-1{animation-delay:.2s;animation-name:statementIn,glowPulseAccent;animation-duration:.9s,4s;animation-timing-function:ease-out,ease-in-out;animation-delay:.2s,1.6s;animation-fill-mode:backwards,none;animation-iteration-count:1,infinite}
-.statement .line-3{animation-delay:.85s;animation-name:statementIn,glowPulseAccent;animation-duration:.9s,4s;animation-timing-function:ease-out,ease-in-out;animation-delay:.85s,2.2s;animation-fill-mode:backwards,none;animation-iteration-count:1,infinite}
-.statement .hot{ /* DER eine Fokuspunkt (Wanda) */
-  background:linear-gradient(90deg,var(--sweet-hot-orange) 0%,var(--sweet-neon-pink) 50%,var(--sweet-violet) 100%);
-  background-size:220% 100%;
+.statement .line{display:block}
+.statement .line-1{animation:statementIn .8s ease-out .15s backwards,glowPulseWhite 4.5s ease-in-out 1.8s infinite}
+.statement .line-3{animation:statementIn .8s ease-out .8s backwards,glowPulseWhite 4.5s ease-in-out 2.4s infinite}
+.statement .hot{
+  background:linear-gradient(100deg,
+    var(--sweet-orange) 0%,
+    var(--sweet-pink) 34%,
+    var(--sweet-violet) 66%,
+    var(--sweet-gold) 100%);
+  background-size:300% 100%;
   -webkit-background-clip:text;background-clip:text;
   color:transparent;-webkit-text-fill-color:transparent;
-  filter:drop-shadow(0 0 18px rgba(237,21,21,.45)) drop-shadow(0 0 46px rgba(246,116,0,.3));
-  animation:statementIn .9s ease-out .5s backwards,
-            neonCycle 8s linear 1.2s infinite;
+  filter:drop-shadow(0 0 16px rgba(237,21,21,.5)) drop-shadow(0 0 44px rgba(246,116,0,.35));
+  animation:statementIn .8s ease-out .45s backwards,hotSheen 5s linear 1s infinite,hotGlow 3.2s ease-in-out 1s infinite;
 }
 .prompt{
   margin-top:clamp(1.2rem,3.5vw,1.9rem);
   font-family:ui-monospace,"Cascadia Mono","JetBrains Mono",Menlo,Consolas,monospace;
   font-size:clamp(.75rem,2.7vw,1rem);
-  color:var(--sweet-tip-dim);
+  color:var(--sweet-tip);
   min-height:1.4em;
 }
 .prompt .user{color:var(--sweet-green)}
 .prompt .path{color:var(--sweet-blue)}
-.prompt .dollar{color:var(--sweet-hot-orange)}
+.prompt .dollar{color:var(--sweet-orange)}
 .caret{
   display:inline-block;width:.55em;height:1.05em;margin-left:.15em;
-  background:var(--sweet-hot-orange);vertical-align:text-bottom;
-  animation:caretBlink 1.1s steps(1) infinite;
+  background:var(--sweet-orange);vertical-align:text-bottom;
+  animation:caretBlink 1.05s steps(1) infinite;
 }
 
-/* ---------- Satelliten-Fenster (Desktop-Insel-Gefühl) ---------- */
-.chip{
-  position:fixed;z-index:2;
-  padding:.6rem 1rem;
-  background:rgba(24,27,40,.28);
-  -webkit-backdrop-filter:var(--glass-blur);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  border-radius:999px;
-  box-shadow:0 12px 32px rgba(0,0,0,.4),var(--glass-top-light);
-  font-family:ui-monospace,"Cascadia Mono",Menlo,monospace;
-  font-size:.78rem;letter-spacing:.04em;
-  color:var(--sweet-tip-dim);
-  animation:chipPopIn .6s var(--overshoot) calc(.9s + var(--i,0)*.18s) backwards,
-            chipFloat var(--d,5s) ease-in-out calc(1.6s + var(--i,0)*.18s) infinite alternate;
-}
-.chip .dot{
-  display:inline-block;width:.55em;height:.55em;border-radius:50%;
-  background:var(--sweet-green);margin-right:.5em;
-  box-shadow:0 0 10px rgba(17,209,22,.9);
-  animation:dotPulse 2s ease-in-out infinite;
-}
-.chip-1{top:calc(1.1rem + env(safe-area-inset-top));left:1.1rem;--i:0;--d:4.5s}
-.chip-2{top:calc(1.1rem + env(safe-area-inset-top));right:1.1rem;--i:1;--d:5.8s}
-.chip-2 .dot{background:var(--sweet-neon-yellow);box-shadow:0 0 10px rgba(201,206,59,.9)}
-
-/* ---------- Ticker (Complementary-Band, dekorativ) ---------- */
+/* ================= Ticker (Complementary-Band) ================= */
 .ticker{
-  position:fixed;left:0;right:0;bottom:0;z-index:2;
-  padding:calc(.7rem + env(safe-area-inset-bottom)) 0 .7rem;
-  background:rgba(22,25,37,.35);
-  -webkit-backdrop-filter:blur(22px) saturate(1.45);
-  backdrop-filter:blur(22px) saturate(1.45);
-  border-top:1px solid var(--glass-border);
+  position:fixed;left:0;right:0;bottom:0;z-index:3;
+  padding:calc(.65rem + env(safe-area-inset-bottom)) 0 .65rem;
+  background:rgba(22,25,37,.3);
+  -webkit-backdrop-filter:blur(22px) saturate(1.6);
+  backdrop-filter:blur(22px) saturate(1.6);
+  border-top:1px solid rgba(255,255,255,.16);
   overflow:hidden;white-space:nowrap;
 }
-.ticker-track{
-  display:inline-block;will-change:transform;
-  animation:tickerScroll 26s linear infinite;
-}
+.ticker-track{display:inline-block;will-change:transform;animation:tickerScroll 22s linear infinite}
 .ticker-item{
   font-family:ui-monospace,"Cascadia Mono",Menlo,monospace;
-  font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--sweet-gold);
+  font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;
+  background:linear-gradient(90deg,var(--sweet-gold),var(--sweet-orange));
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent;
 }
-.ticker-sep{color:var(--sweet-neon-yellow);margin:0 1.2rem}
+.ticker-sep{color:var(--sweet-pink);margin:0 1.1rem;font-size:.8rem}
 
-/* ---------- Keyframes (20) ---------- */
+/* ================= Keyframes (23) ================= */
+@keyframes auroraSpin{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(360deg)}
+}
+@keyframes auroraHue{
+  0%{filter:blur(90px) hue-rotate(0deg)}
+  100%{filter:blur(90px) hue-rotate(70deg)}
+}
+@keyframes flamePulse{
+  0%,100%{transform:translate(-50%,-50%) scale(1)}
+  50%{transform:translate(-50%,-50%) scale(1.1)}
+}
 @keyframes bgDrift{
   0%{transform:translate3d(0,0,0) scale(1)}
-  50%{transform:translate3d(8vmax,-5vmax,0) scale(1.14)}
+  50%{transform:translate3d(9vmax,-4vmax,0) scale(1.12)}
   100%{transform:translate3d(0,0,0) scale(1)}
 }
 @keyframes bgDriftAlt{
   0%{transform:translate3d(0,0,0) scale(1.05)}
-  50%{transform:translate3d(-7vmax,6vmax,0) scale(.94)}
+  50%{transform:translate3d(-8vmax,6vmax,0) scale(.93)}
   100%{transform:translate3d(0,0,0) scale(1.05)}
 }
-@keyframes glowDriftC{
-  0%{transform:translate3d(0,0,0)}
-  50%{transform:translate3d(-10vmax,-9vmax,0)}
-  100%{transform:translate3d(0,0,0)}
-}
-@keyframes orbFloat1{
+@keyframes orbFloatGold{
   0%{transform:translate3d(0,0,0) scale(1)}
-  100%{transform:translate3d(4vmax,5vmax,0) scale(1.25)}
+  100%{transform:translate3d(5vmax,6vmax,0) scale(1.3)}
 }
-@keyframes orbFloat2{
+@keyframes orbFloatBlue{
   0%{transform:translate3d(0,0,0) scale(1.15)}
-  100%{transform:translate3d(-5vmax,-4vmax,0) scale(.9)}
+  100%{transform:translate3d(-6vmax,-5vmax,0) scale(.88)}
+}
+@keyframes orbFloatYellow{
+  0%{transform:translate3d(0,0,0) scale(.9)}
+  100%{transform:translate3d(-4vmax,7vmax,0) scale(1.2)}
 }
 @keyframes statementIn{
-  0%{opacity:0;transform:translateY(24px)}
-  100%{opacity:1;transform:translateY(0)}
+  0%{opacity:0;transform:translateY(26px);filter:blur(10px)}
+  100%{opacity:1;transform:translateY(0);filter:blur(0)}
 }
-@keyframes glowPulseAccent{
-  0%,100%{text-shadow:0 0 10px rgba(255,255,255,.18)}
-  50%{text-shadow:0 0 26px rgba(255,255,255,.4),0 0 70px rgba(133,0,247,.35)}
+@keyframes glowPulseWhite{
+  0%,100%{text-shadow:0 0 10px rgba(255,255,255,.16)}
+  50%{text-shadow:0 0 28px rgba(255,255,255,.42),0 0 80px rgba(133,0,247,.4)}
 }
-@keyframes neonCycle{
+@keyframes hotSheen{
   0%{background-position:0% 50%}
-  100%{background-position:220% 50%}
+  100%{background-position:300% 50%}
 }
-@keyframes wobbleLoop{ /* KWin Wobbly-Windows-Jelly, kontinuierlich */
-  0%,100%{transform:skewX(0) scale(1)}
-  20%{transform:skewX(2.2deg) scale(1.012,.988)}
-  45%{transform:skewX(-1.4deg) scale(.992,1.008)}
-  70%{transform:skewX(.6deg) scale(1.004,1)}
-}
-@keyframes cardMicrotilt{
-  0%{transform:rotateX(.6deg) rotateY(-.8deg) translateY(0)}
-  100%{transform:rotateX(-.5deg) rotateY(.7deg) translateY(-9px)}
-}
-@keyframes glassSweep{
-  0%{transform:translateX(-160%) skewX(-12deg)}
-  55%,100%{transform:translateX(340%) skewX(-12deg)}
-}
-@keyframes borderPulse{
-  0%,100%{border-color:rgba(255,255,255,.14)}
-  50%{border-color:rgba(133,0,247,.55)}
-}
-@keyframes glowDrift{ /* innerer Neon-Ring wandert */
-  0%{box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 40px rgba(133,0,247,.18),inset 0 1px 0 rgba(255,255,255,.25),inset 12px 0 28px -18px rgba(133,0,247,.6)}
-  50%{box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 40px rgba(237,21,21,.18),inset 0 1px 0 rgba(255,255,255,.25),inset -12px 0 28px -18px rgba(237,21,21,.55)}
-  100%{box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 40px rgba(133,0,247,.18),inset 0 1px 0 rgba(255,255,255,.25),inset 12px 0 28px -18px rgba(133,0,247,.6)}
-}
-@keyframes chipPopIn{
-  0%{opacity:0;transform:scale(0)}
-  70%{opacity:1;transform:scale(1.15)}
-  100%{opacity:1;transform:scale(1)}
-}
-@keyframes chipFloat{
-  0%{transform:translateY(0)}
-  100%{transform:translateY(-6px)}
-}
-@keyframes dotPulse{
-  0%,100%{opacity:1;transform:scale(1)}
-  50%{opacity:.45;transform:scale(.8)}
-}
-@keyframes tickerScroll{
-  0%{transform:translateX(0)}
-  100%{transform:translateX(-50%)}
+@keyframes hotGlow{
+  0%,100%{filter:drop-shadow(0 0 14px rgba(237,21,21,.5)) drop-shadow(0 0 40px rgba(246,116,0,.32))}
+  50%{filter:drop-shadow(0 0 26px rgba(237,21,21,.75)) drop-shadow(0 0 70px rgba(133,0,247,.5))}
 }
 @keyframes caretBlink{
   0%,49%{opacity:1}
   50%,100%{opacity:0}
+}
+@keyframes wobbleLoop{
+  0%,100%{transform:skewX(0) scale(1)}
+  18%{transform:skewX(1.8deg) scale(1.01,.992)}
+  42%{transform:skewX(-1.2deg) scale(.994,1.008)}
+  68%{transform:skewX(.5deg) scale(1.003,1)}
+}
+@keyframes microTilt{
+  0%{transform:rotateX(.5deg) rotateY(-.7deg) translateY(0)}
+  100%{transform:rotateX(-.4deg) rotateY(.6deg) translateY(-8px)}
+}
+@keyframes glassSweep{
+  0%{transform:translateX(-170%) skewX(-12deg)}
+  55%,100%{transform:translateX(360%) skewX(-12deg)}
+}
+@keyframes borderSpin{
+  0%{--borderAngle:0deg}
+  100%{--borderAngle:360deg}
+}
+@keyframes statementGlowDrift{ /* innerer Neon-Ring wandert */
+  0%{box-shadow:0 26px 70px rgba(0,0,0,.5),0 0 55px rgba(133,0,247,.28),inset 0 1px 0 rgba(255,255,255,.28),inset 14px 0 30px -20px rgba(133,0,247,.7)}
+  50%{box-shadow:0 26px 70px rgba(0,0,0,.5),0 0 55px rgba(237,21,21,.28),inset 0 1px 0 rgba(255,255,255,.28),inset -14px 0 30px -20px rgba(237,21,21,.65)}
+  100%{box-shadow:0 26px 70px rgba(0,0,0,.5),0 0 55px rgba(133,0,247,.28),inset 0 1px 0 rgba(255,255,255,.28),inset 14px 0 30px -20px rgba(133,0,247,.7)}
+}
+@keyframes chipPopIn{
+  0%{opacity:0;transform:scale(0)}
+  70%{opacity:1;transform:scale(1.12)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes winBobA{
+  0%{transform:translateY(0) rotate(-.4deg)}
+  100%{transform:translateY(-10px) rotate(.5deg)}
+}
+@keyframes winBobB{
+  0%{transform:translateY(0) rotate(.5deg)}
+  100%{transform:translateY(-8px) rotate(-.6deg)}
+}
+@keyframes winBobC{
+  0%{transform:translateY(0) rotate(-.3deg)}
+  100%{transform:translateY(-12px) rotate(.4deg)}
+}
+@keyframes tickerScroll{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
 }
 @keyframes tapBurst{
   0%{transform:scale(.96)}
@@ -299,35 +362,37 @@ body{
 }
 .tap{animation:tapBurst .5s ease both!important}
 
-/* ---------- Desktop-Verfeinerungen ---------- */
+/* ================= Desktop-Verfeinerungen ================= */
 @media (min-width:720px){
   .statement{letter-spacing:-.025em}
   .ticker-item{font-size:.88rem}
 }
 @media (min-width:1200px){
-  .card{width:min(72vw,48rem)}
+  .card{width:min(64vw,48rem)}
 }
-/* ---------- Small Viewport: Chips unter die Karte ---------- */
+/* ================= Small Viewport: Inseln stapeln unter dem Hero ================= */
 @media (max-width:560px){
-  .chip{
+  .stage{
+    align-content:center;
+    padding-top:calc(5.5rem + env(safe-area-inset-top));
+    padding-bottom:calc(3.2rem + env(safe-area-inset-bottom));
+    gap:.9rem;
+  }
+  .isle{
     position:static;
-    display:inline-flex;align-items:center;
-    margin:.25rem;
+    animation:chipPopIn .6s var(--overshoot) calc(1s + var(--i,0)*.22s) backwards;
   }
-  .chip-row{
-    position:fixed;left:0;right:0;
-    bottom:calc(2.6rem + env(safe-area-inset-bottom));
-    z-index:2;display:flex;flex-wrap:wrap;justify-content:center;
-  }
+  .isle-term{max-width:92vw}
+  .isle-quote{display:none} /* unter 560px: Hero + Terminal + Stats reichen */
+  .isle-stack{display:flex;flex-direction:column;align-items:center;gap:.9rem;margin-top:1rem;width:100%}
 }
 @media (min-width:561px){
-  .chip-row{display:contents}
+  .isle-stack{display:contents}
 }
-/* ---------- Touch statt Hover ---------- */
 @media (hover:none){
   .card:hover{animation:inherit}
 }
-/* ---------- Barrierefreiheit: komplette statische Version ---------- */
+/* ================= Barrierefreiheit: komplette statische Version ================= */
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
   .ticker-track{transform:none}
@@ -336,22 +401,37 @@ body{
 </head>
 <body>
 <div class="bg" aria-hidden="true">
-  <div class="glow glow-a"></div>
-  <div class="glow glow-b"></div>
-  <div class="glow glow-c"></div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
+  <div class="aurora"></div>
+  <div class="glow glow-core"></div>
+  <div class="glow glow-orange"></div>
+  <div class="glow glow-deep"></div>
+  <div class="orb orb-gold"></div>
+  <div class="orb orb-blue"></div>
+  <div class="orb orb-yellow"></div>
   <div class="vignette"></div>
 </div>
 
-<aside class="chip-row" aria-label="Status">
-  <!-- data-source: hugo-params (Status, später parameterisiert) -->
-  <span class="chip chip-1" id="chip-status"><span class="dot" aria-hidden="true"></span><span id="chip-status-text"></span></span>
-  <span class="chip chip-2"><span class="dot" aria-hidden="true"></span><span id="chip-mode-text"></span></span>
-</aside>
+<div class="isle-stack">
+  <!-- data-source: hugo-params (später parameterisiert) -->
+  <aside class="isle isle-term" aria-label="Terminal">
+    <div><span class="ln-u">marco@mexord</span><span>:</span><span class="ln-p">~</span><span class="ln-d">$</span> neofetch --blog</div>
+    <div><span class="ok">OK</span> distro: sweet-plasma v3</div>
+    <div><span class="ok">OK</span> kernel: management.ki.opensource</div>
+  </aside>
+
+  <aside class="isle isle-stats" aria-label="Kennzahlen">
+    <div class="st"><b data-count="10">0</b><span>THEMEN</span></div>
+    <div class="st"><b data-static>0</b><span>TRACKER</span></div>
+    <div class="st"><b data-count="100" data-suffix="%">0</b><span>SWEET</span></div>
+  </aside>
+
+  <aside class="isle isle-quote" aria-label="Tagline">
+    <b>MANAGEMENT</b> <span class="mx">✕</span> KI <span class="mx">✕</span> OPEN SOURCE — ohne Bullshit-Bingo.
+  </aside>
+</div>
 
 <main class="stage">
-  <div class="float-wrap">
+  <div class="wobble-wrap">
     <article class="card" id="hero-card">
       <p class="eyebrow">Neues aus dem Kopf eines GF</p>
       <h1 class="statement">
@@ -359,66 +439,90 @@ body{
         <span class="line hot">Klarheit.</span>
         <span class="line line-3">Wirkung.</span>
       </h1>
-      <p class="prompt" aria-live="off"><span class="user">marco@mexord</span><span>:</span> <span class="path">~</span><span class="dollar">$ </span><span id="typed"></span><span class="caret" aria-hidden="true"></span></p>
+      <p class="prompt"><span class="user">marco@mexord</span><span>:</span> <span class="path">~</span><span class="dollar">$ </span><span id="typed"></span><span class="caret" aria-hidden="true"></span></p>
     </article>
   </div>
 </main>
 
 <div class="ticker" aria-hidden="true">
-  <div class="ticker-track" id="ticker-track"><!-- data-source: taxonomy:themes (Becky) --></div>
+  <div class="ticker-track" id="ticker-track"><!-- data-source: taxonomy:themes --></div>
 </div>
 
 <noscript>
-  <style>.ticker::after{content:"KI-STRATEGIE ✕ OPEN SOURCE ✕ PRAXISTEST ✕ WIRTSCHAFTLICHKEIT ✕ SOFTWARE ✕ AUTOMATISIERUNG ✕ SICHERHEIT ✕ FÜHRUNG ✕ ERFAHRUNGEN ✕ AUSBLICK";display:block;text-align:center;font-size:.8rem;color:#FDBC4B;letter-spacing:.08em}#typed::after{content:"cat management_ki_opensource.txt"}#chip-status-text::after{content:"system online"}#chip-mode-text::after{content:"dr460nized mode"}</style>
+  <style>.ticker::after{content:"KI-STRATEGIE ✕ OPEN SOURCE ✕ PRAXISTEST ✕ WIRTSCHAFTLICHKEIT ✕ SOFTWARE ✕ AUTOMATISIERUNG ✕ SICHERHEIT ✕ FÜHRUNG ✕ ERFAHRUNGEN ✕ AUSBLICK";display:block;text-align:center;font-size:.8rem;color:#FDBC4B;letter-spacing:.1em}#typed::after{content:"cat management_ki_opensource.txt"}</style>
 </noscript>
 
 <script>
-/* Becky-Prinzip: Inhalte datengetrieben (Vorbereitung auf Hugo-Taxonomie) */
+/* Inhalte datengetrieben (Hugo-Taxonomie-Vorbereitung) */
 const mockData = {
-  status: "system online — letztes deploy: ok",
-  mode: "dr460nized mode · sweet",
-  promptCommand: "cat management_ki_opensource.txt",
+  commands: [
+    "cat management_ki_opensource.txt",
+    "./deploy --sweet --energy=800%",
+    "systemctl status fuehrung.klarheit.wirkung",
+    "grep -r 'bullshit-bingo' . | wc -l  → 0"
+  ],
   themes: [
     "KI-Strategie","Open Source","Praxistest","Wirtschaftlichkeit","Software",
     "Automatisierung","Sicherheit","Führung","Eigene Erfahrungen","Ausblick"
   ]
 };
-
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* Ticker: Inhalt doppelt für Endlos-Loop (kein Reflow) */
+/* Ticker: doppelt für Endlos-Loop */
 (function renderTicker(){
-  const track = document.getElementById("ticker-track");
   const seq = mockData.themes
     .map(t => `<span class="ticker-item">${t}</span><span class="ticker-sep">✕</span>`)
     .join("");
-  track.innerHTML = seq + seq;
+  document.getElementById("ticker-track").innerHTML = seq + seq;
 })();
 
-/* Chips */
-document.getElementById("chip-status-text").textContent = mockData.status;
-document.getElementById("chip-mode-text").textContent = mockData.mode;
-
-/* Terminal-Typing: setInterval auf textContent, kein Layout-Read im Loop */
+/* Terminal-Typing mit Kommando-Rotation */
 (function typing(){
   const el = document.getElementById("typed");
-  const text = mockData.promptCommand;
-  if (reduced) { el.textContent = text; return; }   /* volle Info, null Motion */
-  let i = 0;
-  const iv = setInterval(() => {
-    el.textContent = text.slice(0, ++i);
-    if (i >= text.length) clearInterval(iv);
+  if (reduced) { el.textContent = mockData.commands[0]; return; }
+  let cmd = 0, i = 0, deleting = false;
+  setInterval(() => {
+    const text = mockData.commands[cmd];
+    if (!deleting) {
+      el.textContent = text.slice(0, ++i);
+      if (i >= text.length) { deleting = true; i = text.length + 26; /* Pause */ }
+    } else {
+      if (--i <= 0) { deleting = false; cmd = (cmd + 1) % mockData.commands.length; i = 0; }
+      else el.textContent = text.slice(0, Math.max(0, text.length - (i - 0) + text.length) .slice(0, text.length)),
+           el.textContent = text.slice(0, Math.max(0, i) <= text.length ? Math.max(0, i) : text.length);
+    }
   }, 55);
 })();
 
-/* Touch-Feedback statt Hover (Franka: @media hover:none + tap-burst) */
+/* Stats: Count-Up (transform-frei, läuft einmalig) */
+(function countUp(){
+  if (reduced) {
+    document.querySelectorAll("[data-count]").forEach(el => {
+      el.textContent = el.dataset.count + (el.dataset.suffix || "");
+    });
+    return;
+  }
+  document.querySelectorAll("[data-count]").forEach((el, idx) => {
+    const target = parseInt(el.dataset.count, 10);
+    const suffix = el.dataset.suffix || "";
+    const t0 = performance.now() + 1400 + idx * 300;
+    const dur = 900;
+    (function tick(now){
+      const p = Math.min(1, Math.max(0, (now - t0) / dur));
+      el.textContent = Math.round(target * p) + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    })(performance.now());
+  });
+})();
+
+/* Touch-Feedback statt Hover */
 (function touchBurst(){
-  const card = document.getElementById("hero-card");
   if (!window.matchMedia("(hover: none)").matches || reduced) return;
-  card.addEventListener("touchstart", () => {
-    card.classList.remove("tap");
-    void card.offsetWidth;                          /* Animations-Restart */
-    card.classList.add("tap");
+  const card = document.getElementById("hero-card");
+  card.closest(".wobble-wrap").addEventListener("touchstart", function(){
+    this.classList.remove("tap");
+    void this.offsetWidth;
+    this.classList.add("tap");
   }, { passive: true });
 })();
 </script>
