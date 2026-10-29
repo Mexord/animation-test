@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161925">
+<meta name="color-scheme" content="dark">
+<title>mexord ▮ v15 — dr460nized grid</title>
+<meta name="description" content="Design-Sonde V15: die drei Q&A-Entscheidungen exakt umgesetzt + vertikale Zentrum-Flamme im Garuda-Look aus den Referenzbildern.">
+<style>
+/* ==================================================================
+   SONDE V15 — Dr460nized Grid (mexord.blog)
+   Die 3 verbindlichen Q&A-Entscheidungen:
+   1. KEIN Window-Chrome (Plasma nur als Wirkweise: Transparenz,
+      Schweben, Fokus-Mechanik an Glas-Karten via WM-Tokens)
+   2. Statement-B: kleine Oberzeile + grosser Dreiklang mit
+      farbigem Mittelbegriff, Oberzeile hat ~/ Prefix
+   3. Dramatischer berechneter Hintergrund: radiale Glows +
+      Linears auf #161925-Basis, abstrakt, keine Textur, keine
+      Muster — keine Hex-Grids, kein Hex-Motiv
+   Zusaetzlich aus den Referenzbildern von Marco:
+   → vertikale/orientierte Farbzonen (nicht nur diagonal):
+     die Flamme kommt aus der Mitte nach oben und links/rechts
+     als swirls
+   → Pink #ED1515 auf dunklem Halb-Pille fuer KLARHEIT.
+   → KEIN clip-path-Objekt, KEIN Screen-Blend auf grosse
+     Flaeche (hat V7-V12 blass gemacht)
+   → Beide Himmel so versehent, dass sie in ~60% #161925
+     drehen (radial mit schiebeway k Americ.
+   Farben ausschliesslich sweet.colors · D-005: keine Drosselung
+   ================================================================== */
+:root{
+  --deep:#161925;
+  --violet:#8500F7;
+  --pink:#ED1515;
+  --orange:#F67400;
+  --yellow:#C9CE3B;
+  --green:#11D116;
+  --blue:#3DAEE9;
+  --gold:#FDBC4B;
+  --white:#FFFFFF;
+  --tip:#BDC3C7;
+  --overshoot:cubic-bezier(.34,1.56,.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--deep);
+  color:var(--white);
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  overflow-x:hidden;
+  min-height:100svh;
+}
+::selection{background:var(--pink);color:var(--white)}
+
+/* ================= DER HINTERGRUND ================= */
+.bg{position:fixed;inset:0;overflow:hidden;z-index:0}
+
+/* Zentrale Zentrum-Flamme (vertikal, aus der Mitte nach oben) */
+.flame-center{
+  position:absolute;
+  left:14%;top:-8%;
+  width:72vw;height:115vh;
+  border-radius:20% 80% 0 0/28% 72% 0 0;
+  background:linear-gradient(168deg,
+    rgba(253,188,75,.85) 0%,
+    rgba(246,116,0,.75) 30%,
+    rgba(237,21,21,.5) 58%,
+    rgba(133,0,247,.35) 78%,
+    rgba(133,0,247,0) 100%);
+  animation:flameBreathe 9s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* Swirl unten links: Violett-Radial (tief, ruhig) */
+.swirl-l{
+  position:absolute;
+  width:44vmax;height:44vmax;left:-16vmax;bottom:-18vmax;border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(133,0,247,.72) 0%,
+    rgba(133,0,247,.36) 32%,
+    rgba(133,0,247,0) 60%);
+  animation:swirlDrift 24s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+
+/* Swirl oben rechts: warm, ausgehend */
+.swirl-r{
+  position:absolute;
+  width:38vmax;height:38vmax;right:-10vmax;top:10%;border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(246,116,0,.5) 0%,
+    rgba(253,188,75,.35) 24%,
+    rgba(237,21,21,.38) 44%,
+    rgba(237,21,21,0) 62%);
+  animation:swirlDrift 28s ease-in-out infinite alternate-reverse;
+  pointer-events:none;
+}
+
+/* kleiner Kaltpunkt oben Mitte-rechts (positiv) */
+.cold{
+  position:absolute;
+  width:20vmax;height:20vmax;right:28%;top:6%;border-radius:50%;
+  background:radial-gradient(circle,rgba(61,174,233,.5) 0%,rgba(61,174,233,.14) 38%,rgba(61,174,233,0) 62%);
+  animation:caltPulse 12s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* Vignette CONC */
+.vign{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 0% 100%, rgba(22,25,37,.55) 0%, rgba(22,25,37,0) 46%),
+    radial-gradient(ellipse at 100% 0%, rgba(22,25,37,.45) 0%, rgba(22,25,37,0) 48%),
+    radial-gradient(ellipse at 50% 50%, rgba(22,25,37,0) 38%, rgba(22,25,37,.25) 100%);
+  pointer-events:none;
+}
+
+/* ================= GLAS-INSEL ================= */
+.stage{
+  position:relative;z-index:1;
+  min-height:100svh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(1rem,3vw,1.6rem);
+  padding:calc(clamp(3rem,7vh,4.5rem) + env(safe-area-inset-top)) clamp(1rem,4vw,3rem) calc(clamp(5rem,12vh,7rem) + env(safe-area-inset-bottom));
+}
+.wobble-wrap{
+  transform-origin:50% 100%;
+  animation:jelly 7s ease-in-out infinite,cardFloat 8s ease-in-out infinite alternate;
+  will-change:transform;
+}
+.card{
+  position:relative;overflow:hidden;
+  width:min(88vw,38rem);
+  padding:clamp(1.8rem,6vw,3.5rem) clamp(1.3rem,5vw,3rem);
+  background:rgba(22,25,37,.5);
+  -webkit-backdrop-filter:blur(16px) saturate(1.55);
+  backdrop-filter:blur(16px) saturate(1.55);
+  border:1px solid rgba(255,255,255,.36);
+  border-top-color:rgba(255,255,255,.6);
+  border-radius:clamp(18px,3vw,24px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.32),
+    0 30px 70px rgba(22,25,37,.55);
+  text-align:center;
+  contain:layout paint;
+  animation:cardSettle .9s ease-out backwards;
+}
+.card::before{
+  content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:32%;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.28) 50%,rgba(255,255,255,0) 100%);
+  transform:translateX(-170%) skewX(-14deg);
+  animation:sweep 6s ease-in-out 1.2s infinite;
+  pointer-events:none;
+}
+.eyebrow{
+  font-size:clamp(.68rem,2.2vw,.88rem);
+  font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.85);
+  text-shadow:0 1px 8px rgba(22,25,37,.7);
+  margin-bottom:clamp(1rem,3vw,1.3rem);
+}
+.statement{
+  font-size:clamp(2.9rem,13.5vw,5.3rem);
+  font-weight:900;line-height:.95;letter-spacing:-.015em;
+  text-transform:uppercase;
+  text-shadow:0 2px 22px rgba(22,25,37,.62);
+}
+.statement .line{display:block}
+.line-1{animation:reveal .75s var(--overshoot) .3s backwards}
+.line-3{animation:reveal .75s var(--overshoot) 1.9s backwards}
+.statement .hot{
+  display:inline-block;
+  padding:.03em .2em;border-radius:.14em;
+  background:rgba(22,25,37,.76);
+  color:var(--pink);
+  text-shadow:0 0 30px rgba(237,21,21,.95);
+  box-shadow:0 0 30px rgba(237,21,21,.5),inset 0 1px 0 rgba(255,255,255,.2);
+  animation:revealHot .8s var(--overshoot) 1.1s backwards,
+            pinkHalo 3s ease-in-out 2s infinite;
+}
+.prompt{
+  margin-top:clamp(1.2rem,3.5vw,1.8rem);
+  font-family:ui-monospace,"Cascadia Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  font-size:clamp(.75rem,2.7vw,1rem);
+  color:var(--tip);
+  text-shadow:0 1px 8px rgba(22,25,37,.85);
+  min-height:1.4em;
+}
+.prompt .user{color:var(--green)}
+.prompt .path{color:var(--blue)}
+.prompt .dollar{color:var(--gold)}
+.caret{
+  display:inline-block;width:.55em;height:1.05em;margin-left:.15em;
+  background:var(--pink);vertical-align:text-bottom;
+  animation:blink 1.05s steps(1) infinite;
+}
+
+/* ================= Status-Insel ================= */
+.status{
+  position:fixed;left:clamp(.9rem,3vw,2rem);
+  bottom:calc(clamp(.9rem,3vw,2rem) + env(safe-area-inset-bottom));
+  z-index:2;display:inline-flex;align-items:center;gap:.55rem;
+  padding:.65rem 1rem;
+  background:rgba(22,25,37,.55);
+  -webkit-backdrop-filter:blur(15px) saturate(1.55);
+  backdrop-filter:blur(15px) saturate(1.55);
+  border:1px solid rgba(255,255,255,.3);
+  border-radius:14px;
+  box-shadow:0 14px 34px rgba(22,25,37,.5),inset 0 1px 0 rgba(255,255,255,.22);
+  font-family:ui-monospace,"Cascadia Mono",Menlo,monospace;
+  font-size:.78rem;color:var(--tip);
+  animation:cardSettle .9s ease-out .5s backwards;
+}
+.status .dot{
+  width:.6em;height:.6em;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 12px rgba(17,209,22,.95);
+  animation:dotPulse 2.2s ease-in-out infinite;
+}
+.status b{color:var(--yellow);text-shadow:0 0 10px rgba(201,206,59,.6)}
+
+/* ================= Keyframes ================= */
+@keyframes flameBreathe{
+  0%,100%{transform:scale(1) translateY(0);opacity:.9}
+  50%{transform:scale(1.03) translateY(-1%);opacity:1}
+}
+@keyframes swirlDrift{
+  0%{transform:translate(0,0) scale(1)}
+  100%{transform:translate(5%,-4%) scale(1.08)}
+}
+@keyframes caltPulse{
+  0%,100%{opacity:.7;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.12)}
+}
+@keyframes jelly{
+  0%,100%{transform:skewX(0) scale(1)}
+  24%{transform:skewX(1deg) scaleX(1.01) scaleY(.992)}
+  48%{transform:skewX(-.8deg) scaleX(.994) scaleY(1.008)}
+  74%{transform:skewX(.35deg) scaleX(1) scaleY(1)}
+}
+@keyframes cardFloat{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(-9px)}
+}
+@keyframes sweep{
+  0%{transform:translateX(-170%) skewX(-14deg)}
+  55%,100%{transform:translateX(430%) skewX(-14deg)}
+}
+@keyframes reveal{
+  0%{opacity:0;transform:translateY(14px);filter:blur(9px)}
+  100%{opacity:1;transform:translateY(0);filter:blur(0)}
+}
+@keyframes revealHot{
+  0%{opacity:0;transform:scale(.84)}
+  70%{opacity:1;transform:scale(1.06)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes pinkHalo{
+  0%,100%{text-shadow:0 0 24px rgba(237,21,21,.85)}
+  50%{text-shadow:0 0 46px rgba(237,21,21,1),0 0 90px rgba(133,0,247,.55)}
+}
+@keyframes blink{
+  0%,49%{opacity:1}
+  50%,100%{opacity:0}
+}
+@keyframes cardSettle{
+  0%{opacity:0;transform:translateY(18px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+@keyframes dotPulse{
+  0%,100%{opacity:.55;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.12)}
+}
+
+/* ================= Layout ================= */
+@media (min-width:720px){
+  .statement{letter-spacing:-.025em}
+}
+@media (max-width:560px){
+  .status{position:static;margin-top:1rem}
+  .wobble-wrap{animation-duration:10s}
+}
+@media (hover:none){.card:hover{animation:inherit}}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <div class="flame-center"></div>
+  <div class="swirl-l"></div>
+  <div class="swirl-r"></div>
+  <div class="cold"></div>
+  <div class="vign"></div>
+</div>
+
+<main class="stage">
+  <div class="wobble-wrap">
+    <article class="card" id="hero-card">
+      <p class="eyebrow">Neues aus dem Kopf eines GF</p>
+      <h1 class="statement">
+        <span class="line line-1">Führung.</span>
+        <span class="line hot">Klarheit.</span>
+        <span class="line line-3">Wirkung.</span>
+      </h1>
+      <p class="prompt"><span class="user">marco@mexord</span><span>:</span> <span class="path">~</span><span class="dollar">$ </span><span id="typed"></span><span class="caret" aria-hidden="true"></span></p>
+    </article>
+  </div>
+
+  <aside class="status" role="status" aria-live="off">
+    <span class="dot" aria-hidden="true"></span><span><b>LIVE</b> · dr460nized energy · mexord.blog</span>
+  </aside>
+</main>
+
+<noscript>
+  <style>#typed::after{content:"cat management_ki_opensource.txt"}</style>
+</noscript>
+
+<script>
+(function typing(){
+  const el=document.getElementById("typed");
+  const text="cat management_ki_opensource.txt";
+  let i=0;
+  const iv=setInterval(()=>{
+    el.textContent=text.slice(0,++i);
+    if(i>=text.length)clearInterval(iv);
+  },52);
+})();
+</script>
+</body>
+</html>
