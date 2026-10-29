@@ -5,22 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#161925">
 <meta name="color-scheme" content="dark">
-<title>mexord ▮ v9 — Flamme, mittig, von links unten nach rechts oben</title>
-<meta name="description" content="Design-Sonde V9: Die Flamme sitzt MITTIG auf der Achse links unten -> rechts oben (45°), ca. 40% hell, 60% tiefes #161925, 11 @keyframes, Glas-Insel.">
+<title>mexord ▮ v9 — diagonal-flamme, 60/40</title>
+<meta name="description" content="Design-Sonde V9: Eine konzentrierte Flamme steigt diagonal von links unten nach rechts oben (40% hell), Rest tiefes #161925 (60%). Glas-Insel zentral. 13 @keyframes, keine Drosselung.">
 <style>
 /* ==================================================================
-   SONDE V9 — Flamme zentriert auf Achse links unten → rechts oben
-   Direkt aus Marcos Frage: "Warum ist die Flamme nicht in der Mitte
-   von links unten nach rechts oben?"
-   Antwort: Weil ich sie in V8 falsch verortet hatte. Jetzt zentriert,
-   wie auf seinem Dr460nized-Desktop (Flamme steigt diagonal durchs
-   Zentrum), nicht an der Seite.
-   · 60% tiefer Grund (#161925) — Marcos Vorgabe
-   · 40% Flamme: EIN diagonal durchscheinender Strahl auf exakt der
-     Diagonale, gestaffelte Alpha-Stops für "gemalt" (Airbrush, kein
-     Plakat-Keil), volle Sättigung im Kern, hart auslaufend
-   · Glas-Insel in der Flamme (das Desktop-Gefühl)
-   Farben nur sweet.colors · D-001/002/003 · D-005 (kein Kill-Switch)
+   SONDE V9 — Diagonal-Flamme, 60% dunkel / 40% hell (mexord.blog)
+   Marcos Direktiven:
+   · "60% des Hintergrunds soll eher dunkel sein"
+   · "Flamme in der Mitte von links unten nach rechts oben"
+   Umsetzung: EIN Strahl auf der Screen-Diagonale (Kern Alpha .9,
+   harte Farbstops, weiche Guass-Kanten via zwei Schichten), dazu
+   Glut-Kern unten links und ein kalter Punkt oben rechts.
+   Keine Streams, keine Schaefte, keine Platten. Farben nur
+   sweet.colors. D-001/002/003. D-005: keine Drosselung.
    ================================================================== */
 :root{
   --deep:#161925;
@@ -46,49 +43,53 @@ body{
 }
 ::selection{background:var(--pink);color:var(--white)}
 
-/* ================= FLAMME: diagonal, mittig, Airbrush ================= */
+/* ================= DER STRAHL: eine Diagonale, zwei Schichten ================= */
 .bg{position:fixed;inset:0;overflow:hidden;z-index:0}
 
-.flame{ /* Der eine, zentrierte Strahl: links unten → rechts oben */
-  position:absolute;inset:-25%;
-  background:linear-gradient(52deg,
-    rgba(22,25,37,0) 30%,
-    rgba(133,0,247,.5) 40%,
-    rgba(237,21,21,.75) 49%,
-    rgba(246,116,0,.85) 55%,
-    rgba(253,188,75,.8) 60%,
-    rgba(246,116,0,.6) 66%,
-    rgba(22,25,37,0) 76%);
-  background-size:200% 200%;
-  animation:flameFlow 13s ease-in-out infinite alternate,
-            flamePulse 9s ease-in-out infinite;
+.beam-wide{ /* weiche Aussenhuelle des Strahls (Airbrush-Kante) */
+  position:absolute;
+  inset:-30%;
+  background:linear-gradient(45deg,
+    rgba(133,0,247,0) 30%,
+    rgba(133,0,247,.5) 41%,
+    rgba(237,21,21,.5) 49%,
+    rgba(246,116,0,.5) 55%,
+    rgba(246,116,0,0) 68%);
+  background-size:220% 220%;
+  animation:beamWideFlow 14s ease-in-out infinite alternate;
+}
+.beam-core{ /* DER heisse Kern: harte Farbstops, fast deckend */
+  position:absolute;
+  inset:-30%;
+  background:linear-gradient(45deg,
+    rgba(22,25,37,0) 40%,
+    rgba(133,0,247,.9) 45%,
+    rgba(237,21,21,.9) 51%,
+    rgba(246,116,0,.95) 55%,
+    rgba(253,188,75,.9) 58%,
+    rgba(246,116,0,.7) 62%,
+    rgba(22,25,37,0) 67%);
+  background-size:220% 220%;
+  animation:beamCoreFlow 11s ease-in-out infinite alternate,
+            beamCorePulse 7s ease-in-out infinite;
 }
 
-.forge{ /* Der Glut-Kern wo die Flamme entsteht (links unten) */
-  position:absolute;width:56vmax;height:56vmax;
-  left:-16vmax;bottom:-16vmax;border-radius:50%;
+.forge{ /* Glut-Kern: da, wo die Flamme entsteht (links unten) */
+  position:absolute;width:52vmax;height:52vmax;
+  left:-15vmax;bottom:-14vmax;border-radius:50%;
   background:radial-gradient(circle,
-    rgba(253,188,75,.7) 0%,
-    rgba(246,116,0,.55) 26%,
-    rgba(237,21,21,.4) 46%,
-    rgba(237,21,21,0) 62%);
+    rgba(253,188,75,.75) 0%,
+    rgba(246,116,0,.6) 24%,
+    rgba(237,21,21,.4) 42%,
+    rgba(237,21,21,0) 60%);
   animation:forgePulse 7s ease-in-out infinite;
 }
 
-.cold{ /* Die eine kalte Blau-Ecke: Kontrast oben rechts */
-  position:absolute;width:30vmax;height:30vmax;
-  right:-4vmax;top:-6vmax;border-radius:50%;
+.cold{ /* ein kalter Punkt oben rechts: Kontrast, kein Muster */
+  position:absolute;width:26vmax;height:26vmax;
+  right:-3vmax;top:-5vmax;border-radius:50%;
   background:radial-gradient(circle,rgba(61,174,233,.55) 0%,rgba(61,174,233,.18) 36%,rgba(61,174,233,0) 62%);
   animation:coldPulse 11s ease-in-out infinite;
-}
-
-.vignette{ /* dunkle Seiten: die 60% Tiefe wird erhaben */
-  position:absolute;inset:0;
-  background:linear-gradient(52deg,
-    rgba(22,25,37,0) 30%,
-    rgba(22,25,37,0) 70%,
-    rgba(22,25,37,.5) 100%);
-  pointer-events:none;
 }
 
 /* ================= GLAS-Insel ================= */
@@ -121,7 +122,7 @@ body{
   contain:layout paint;
   animation:cardSettle .9s ease-out backwards;
 }
-.card::before{ /* Sweep: Glas-Physik */
+.card::before{ /* Sweep beweist Glas */
   content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:34%;
   background:linear-gradient(115deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.3) 50%,rgba(255,255,255,0) 100%);
   transform:translateX(-170%) skewX(-14deg);
@@ -195,13 +196,17 @@ body{
 }
 .status b{color:var(--yellow);text-shadow:0 0 10px rgba(201,206,59,.6)}
 
-/* ================= Keyframes (11) — keine Drosselung ================= */
-@keyframes flameFlow{
+/* ================= Keyframes (13) — D-005: keine Drosselung ================= */
+@keyframes beamWideFlow{
   0%{background-position:0% 0%}
   100%{background-position:100% 100%}
 }
-@keyframes flamePulse{
-  0%,100%{opacity:.9}
+@keyframes beamCoreFlow{
+  0%{background-position:0% 100%}
+  100%{background-position:100% 0%}
+}
+@keyframes beamCorePulse{
+  0%,100%{opacity:.92}
   50%{opacity:1}
 }
 @keyframes forgePulse{
@@ -265,15 +270,14 @@ body{
   .wobble-wrap{animation-duration:10s}
 }
 @media (hover:none){.card:hover{animation:inherit}}
-/* D-005: kein prefers-reduced-motion-Block */
 </style>
 </head>
 <body>
 <div class="bg" aria-hidden="true">
-  <div class="flame"></div>
+  <div class="beam-wide"></div>
+  <div class="beam-core"></div>
   <div class="forge"></div>
   <div class="cold"></div>
-  <div class="vignette"></div>
 </div>
 
 <main class="stage">
