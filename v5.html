@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161925">
+<meta name="color-scheme" content="dark">
+<title>mexord ▮ sonde v5 — sweet flame</title>
+<meta name="description" content="Design-Sonde V5: deckender Sweet-Hintergrund (3 Vollfarb-Blöcke, Alpha 1, kein blur), Glas-Karte mit Sweep, KLARHEIT. in Neongelb, Wobble als KWin-Jelly, 13 @keyframes.">
+<style>
+/* ==================================================================
+   SONDE V5 — "Sweet Flame" (mexord.blog)
+   Team-Brainstorm (Wanda+Franka) mit Screenshot-Analyse:
+   · Hintergrund muss DECKEND bunt sein (Alpha >= .7 bzw. 1), nicht
+     dunkel, nicht Nebel — wie Marcos Desktop-Artwork, nur berechnet
+   · Glas wirkt gegen helle Kante: Card alpha .55, heller Border,
+     weißer Sweep alle 9s beweist den Glaseffekt
+   · KLARHEIT in Neongelb #C9CE3B auf dunkler Glas-Pille — Kontrast
+     > 9:1, ohne text-fill-Gradient (der früher unleserlich wurde)
+   · Chaos verboten: 3 Hintergrund-Blöcke + 1 Karte + 1 Status-Karte.
+     Viel Sichtraum. Desktop-Vibes durch Abstand, nicht Deko.
+   D-001/002/003 gelten weiter · Farben ausschließlich sweet.colors
+   ================================================================== */
+:root{
+  --sweet-deep:#161925;
+  --sweet-violet:#8500F7;
+  --sweet-pink:#ED1515;
+  --sweet-orange:#F67400;
+  --sweet-yellow:#C9CE3B;
+  --sweet-green:#11D116;
+  --sweet-blue:#3DAEE9;
+  --sweet-gold:#FDBC4B;
+  --sweet-white:#FFFFFF;
+  --sweet-tip:#BDC3C7;
+  --overshoot:cubic-bezier(.34,1.56,.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--sweet-deep);
+  color:var(--sweet-white);
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  overflow-x:hidden;
+  min-height:100svh;
+}
+::selection{background:var(--sweet-violet);color:var(--sweet-white)}
+
+/* ================= HINTERGRUND: deckend, gemalt — kein blur ================= */
+.bg{position:fixed;inset:0;overflow:hidden;z-index:0}
+.block{position:fixed;will-change:transform}
+.block-a{ /* Violett, oben links, deckend */
+  inset:-15% -10% 40% -12%;
+  background:linear-gradient(135deg,
+    rgba(133,0,247,.72) 0%,
+    rgba(133,0,247,.72) 55%,
+    rgba(61,174,233,.55) 100%);
+  animation:bgA 40s ease-in-out infinite alternate;
+}
+.block-b{ /* Orange→Pink→Gold, rechts unten, deckend */
+  inset:42% -12% -15% 42%;
+  background:linear-gradient(160deg,
+    rgba(246,116,0,.68) 0%,
+    rgba(246,116,0,.68) 38%,
+    rgba(237,21,21,.62) 70%,
+    rgba(253,188,75,.5) 100%);
+  animation:bgB 36s ease-in-out infinite alternate;
+}
+.block-c{ /* Grün→Neongelb, links unten */
+  inset:60% 70% -12% -10%;
+  background:linear-gradient(200deg,
+    rgba(17,209,22,.55) 0%,
+    rgba(201,206,59,.5) 100%);
+  animation:bgC 32s ease-in-out infinite alternate;
+}
+.arc{ /* eine scharfe geometrische Bögen-Form, keine Textur */
+  position:absolute;width:150vw;height:150vw;top:-105vw;left:50%;
+  transform:translateX(-50%);
+  border-radius:50%;
+  border:2px solid rgba(253,188,75,.35);
+  box-shadow:0 0 60px rgba(253,188,75,.12),inset 0 0 40px rgba(133,0,247,.12);
+  pointer-events:none;
+}
+.glut{ /* ein kleiner Glut-Kern — warme Mitte */
+  position:absolute;width:52vmax;height:52vmax;left:-12vmax;top:26%;
+  border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(237,21,21,.5) 0%,rgba(237,21,21,0) 55%);
+  animation:glutPulse 11s ease-in-out infinite;
+}
+.vignette{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,rgba(22,25,37,0) 32%,rgba(22,25,37,.35) 100%);
+}
+
+/* ================= HELD: EINE Glas-Karte, die Glas zeigt ================= */
+.stage{
+  position:relative;z-index:1;
+  min-height:100svh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(1rem,3vw,1.75rem);
+  padding:calc(clamp(4rem,9vh,6rem) + env(safe-area-inset-top)) clamp(1rem,4vw,3rem) calc(clamp(4rem,9vh,6rem) + env(safe-area-inset-bottom));
+}
+.wobble-wrap{
+  transform-origin:50% 100%;
+  animation:jelly 7s ease-in-out infinite;
+  will-change:transform;
+}
+.card{
+  position:relative;overflow:hidden;
+  width:min(92vw,40rem);
+  padding:clamp(1.75rem,6vw,3.5rem) clamp(1.4rem,5vw,3rem);
+  background:rgba(22,25,37,.55);
+  -webkit-backdrop-filter:blur(14px) saturate(1.4);
+  backdrop-filter:blur(14px) saturate(1.4);
+  border:1px solid rgba(255,255,255,.35);
+  border-top-color:rgba(255,255,255,.55);
+  border-radius:clamp(18px,3vw,24px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 30px 70px rgba(0,0,0,.5);
+  text-align:center;
+  contain:layout paint;
+  animation:cardSettle .9s ease-out backwards;
+}
+.card::before{ /* weißer Sweep beweist das Glas */
+  content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:34%;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.18) 50%,rgba(255,255,255,.03) 100%);
+  transform:translateX(-160%) skewX(-12deg);
+  animation:glassSweep 9s ease-in-out 1.2s infinite;
+  pointer-events:none;
+}
+.eyebrow{
+  font-size:clamp(.68rem,2.3vw,.9rem);
+  font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.85);
+  margin-bottom:clamp(1rem,3vw,1.5rem);
+}
+.statement{
+  font-size:clamp(2.6rem,11vw,4.75rem);
+  font-weight:900;line-height:.96;letter-spacing:-.015em;
+  text-transform:uppercase;
+}
+.statement .line{display:block}
+.line-1{animation:revealLine .7s var(--overshoot) .3s backwards}
+.line-3{animation:revealLine .7s var(--overshoot) 2.1s backwards}
+.statement .hot{ /* Neongelb auf dunkler Halb-Pille: Knallfarbe, garantiert lesbar */
+  display:inline-block;
+  padding:.04em .22em;border-radius:.16em;
+  background:rgba(22,25,37,.72);
+  color:var(--sweet-yellow);
+  text-shadow:if(false,null,0) none;
+  box-shadow:0 0 30px rgba(201,206,59,.35),inset 0 1px 0 rgba(255,255,255,.12);
+  border:1px solid rgba(201,206,59,.3);
+  animation:revealHot .9s var(--overshoot) 1.2s backwards,
+            yellowPulse 3.8s ease-in-out 2.4s infinite;
+}
+.statement .hot{ text-shadow:0 2px 18px rgba(22,25,37,.9),0 0 24px rgba(201,206,59,.3) }
+.prompt{
+  margin-top:clamp(1.2rem,3.5vw,1.8rem);
+  font-family:ui-monospace,"Cascadia Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  font-size:clamp(.75rem,2.7vw,1rem);
+  color:var(--sweet-tip);
+  min-height:1.4em;
+}
+.proof{
+  margin-top:.4rem;font-size:clamp(.7rem,2.4vw,.85rem);
+  color:rgba(255,255,255,.72);letter-spacing:.04em;
+}
+.prompt .user{color:var(--sweet-green)}
+.prompt .path{color:var(--sweet-blue)}
+.prompt .dollar{color:var(--sweet-orange)}
+.caret{
+  display:inline-block;width:.55em;height:1.05em;margin-left:.15em;
+  background:var(--sweet-gold);vertical-align:text-bottom;
+  animation:caretBlink .8s steps(1) infinite;
+}
+
+/* ================= EINE Status-Karte links unten (kein Chaos) ================= */
+.status{
+  position:fixed;left:clamp(.9rem,3vw,2rem);
+  bottom:calc(clamp(.9rem,3vw,2rem) + env(safe-area-inset-bottom));
+  z-index:2;display:inline-flex;align-items:center;gap:.6rem;
+  padding:.7rem 1.1rem;
+  background:rgba(22,25,37,.6);
+  -webkit-backdrop-filter:blur(14px) saturate(1.4);
+  backdrop-filter:blur(14px) saturate(1.4);
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:16px;
+  box-shadow:0 14px 34px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.18);
+  font-family:ui-monospace,"Cascadia Mono",Menlo,monospace;
+  font-size:.78rem;color:var(--sweet-tip);
+  animation:cardSettle .9s ease-out .5s backwards,statusBob 7s ease-in-out 1.6s infinite alternate;
+}
+.status .dot{
+  width:.6em;height:.6em;border-radius:50%;
+  background:var(--sweet-green);
+  box-shadow:0 0 12px rgba(17,209,22,.9);
+  animation:statusPulse 2.5s ease-in-out infinite;
+}
+.status b{color:var(--sweet-gold)}
+
+/* ================= Keyframes (13) ================= */
+@keyframes bgA{
+  0%{transform:scale(1) rotate(0deg)}
+  100%{transform:scale(1.06) rotate(2deg)}
+}
+@keyframes bgB{
+  0%{transform:scale(1) rotate(0deg)}
+  100%{transform:scale(1.05) rotate(-1.5deg)}
+}
+@keyframes bgC{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(-3%)}
+}
+@keyframes glutPulse{
+  0%,100%{opacity:.75;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.08)}
+}
+@keyframes jelly{
+  0%,100%{transform:skewX(0) scale(1)}
+  22%{transform:skewX(.9deg) scale(1.008,.992)}
+  46%{transform:skewX(-.7deg) scale(.994,1.006)}
+  72%{transform:skewX(.3deg) scale(1.002,1)}
+}
+@keyframes glassSweep{
+  0%{transform:translateX(-160%) skewX(-12deg)}
+  55%,100%{transform:translateX(420%) skewX(-12deg)}
+}
+@keyframes revealLine{
+  0%{opacity:0;transform:translateY(14px);filter:blur(9px)}
+  100%{opacity:1;transform:translateY(0);filter:blur(0)}
+}
+@keyframes revealHot{
+  0%{opacity:0;transform:scale(.82);filter:blur(10px)}
+  70%{opacity:1;transform:scale(1.06);filter:blur(0)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes yellowPulse{
+  0%,100%{box-shadow:0 0 26px rgba(201,206,59,.32),inset 0 1px 0 rgba(255,255,255,.12)}
+  50%{box-shadow:0 0 48px rgba(201,206,59,.6),inset 0 1px 0 rgba(255,255,255,.12)}
+}
+@keyframes caretBlink{
+  0%,49%{opacity:1}
+  50%,100%{opacity:0}
+}
+@keyframes cardSettle{
+  0%{opacity:0;transform:translateY(20px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+@keyframes statusBob{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(-5px)}
+}
+@keyframes statusPulse{
+  0%,100%{opacity:.55;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.15)}
+}
+
+/* ================= Desktop-Details (mobile-first bleibt Basis) ================= */
+@media (min-width:720px){
+  .statement{letter-spacing:-.025em}
+}
+@media (min-width:1200px){
+  .card{width:min(60vw,44rem)}
+}
+/* ================= <560px: Status im Flow, Jelly gedämpft ================= */
+@media (max-width:560px){
+  .status{
+    position:static;
+    margin-top:1rem;
+    animation:cardSettle .9s ease-out .5s backwards;
+  }
+  .wobble-wrap{animation-duration:10s}
+}
+@media (hover:none){
+  .card:hover{animation:inherit}
+}
+/* ================= Barrierefreiheit: komplett statisch ================= */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <div class="block block-a"></div>
+  <div class="block block-b"></div>
+  <div class="block block-c"></div>
+  <div class="arc"></div>
+  <div class="glut"></div>
+  <div class="vignette"></div>
+</div>
+
+<main class="stage">
+  <div class="wobble-wrap">
+    <article class="card" id="hero-card">
+      <p class="eyebrow">Neues aus dem Kopf eines GF</p>
+      <h1 class="statement">
+        <span class="line line-1">Führung.</span>
+        <span class="line hot">Klarheit.</span>
+        <span class="line line-3">Wirkung.</span>
+      </h1>
+      <p class="prompt"><span class="user">marco@mexord</span><span>:</span> <span class="path">~</span><span class="dollar">$ </span><span id="typed"></span><span class="caret" aria-hidden="true"></span></p>
+      <p class="proof">Aus dem Alltag als GF — 1× wöchentlich, kein Marketing.</p>
+    </article>
+  </div>
+
+  <div class="status" role="status" aria-live="off">
+    <!-- data-source: hugo-params (später parameterisiert) -->
+    <span class="dot" aria-hidden="true"></span><span><b>LIVE</b> · 3 neue Beiträge · mexord.blog</span>
+  </div>
+</main>
+
+<noscript>
+  <style>#typed::after{content:"cat management_ki_opensource.txt"}</style>
+</noscript>
+
+<script>
+/* Inhalte datengetrieben (Hugo-Vorbereitung) */
+const mockData = { promptCommand: "cat management_ki_opensource.txt" };
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* Terminal-Typing: rein textContent, kein Layout-Read im Loop */
+(function typing(){
+  const el = document.getElementById("typed");
+  const text = mockData.promptCommand;
+  if (reduced) { el.textContent = text; return; }
+  let i = 0;
+  const iv = setInterval(() => {
+    el.textContent = text.slice(0, ++i);
+    if (i >= text.length) clearInterval(iv);
+  }, 52);
+})();
+</script>
+</body>
+</html>
