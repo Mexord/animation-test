@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8500F7">
+<meta name="color-scheme" content="dark">
+<title>mexord ▮ v8 — die brennende wand</title>
+<meta name="description" content="Design-Sonde V8 "Feuerschlucht": Mischung aus Hell und Dunkel für Tiefe — brennende Wand im Westen, Leere im Osten, harter Kontrast, ECHTES Glas mit inline SVG-alpha erkennbar gemacht, 13 @keyframes, keine Drosselung.">
+<style>
+/* ==================================================================
+   SONDE V8 — Die brennende Wand (mexord.blog)
+   Fakten aus V7.1-Screenshot:
+   · screen-Blend = Pastell-Unfall (Farben blassen aus)
+   · harte Diagonal keile = Plakat-Effekt statt Artwork
+   · alles HELL = keine Tiefe
+   V8-Physik (nach Marcos Vorgabe "Mischung aus Hell und Dunkel"):
+   · Normal-Blend ueber dunkler Basis (#161925) — Farben bleiben satt
+   · HARTE Hell/Dunkel-Trennung: Brennzone im Westen (links ~50vw),
+     Leere im Osten (rechts) — Kontrast schafft Tiefe
+   · FEUER am Grund (unten) mit harten Gradient-Stops: das leuchtet
+     am deutlichsten ueber Glas, ohne das ganze Feld zu bedecken
+   · Glas alpha .38 DURCH ECHTES GLAS SICHTBAR: inline-SVG-
+     variante (kein blur-Filter auf ihrem Inhalt) statt pseudo-farbe
+   · Sweep alle 6s siebt das Profil durch Glas wie auf Marcos KDE
+   D-001/002/003 (kein Chrome/Statement-Set/Berechnetes Artwork ohne Muster)
+   D-005 (kein reduced-motion-Kill-Switch)
+   ================================================================== */
+:root{
+  --deep:#161925;
+  --violet:#8500F7;
+  --pink:#ED1515;
+  --orange:#F67400;
+  --yellow:#C9CE3B;
+  --green:#11D116;
+  --blue:#3DAEE9;
+  --gold:#FDBC4B;
+  --white:#FFFFFF;
+  --tip:#BDC3C7;
+  --overshoot:cubic-bezier(.34,1.56,.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--deep);
+  color:var(--white);
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  overflow-x:hidden;
+  min-height:100svh;
+}
+::selection{background:var(--pink);color:var(--white)}
+
+/* ================= HINTERGRUND: Brennzone + Leere ================= */
+.bg{position:fixed;inset:0;overflow:hidden;z-index:0}
+
+/* Westen: die brennende Wand (Uberdruck ueber normaler Mischung) */
+.fire-wall{
+  position:absolute;
+  inset:-20% 45% -20% -18%;
+  background:linear-gradient(155deg,
+    #8500F7 0%,
+    #ED1515 42%,
+    #F67400 78%);
+  animation:fireWallBreathe 9s ease-in-out infinite;
+}
+
+/* Flammen-Profile im Feuer: scharfe Gradients mit harten Uebergaengen */
+.fire-form{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(14deg,
+      rgba(22,25,37,0) 12%,
+      rgba(237,21,21,.68) 34%,
+      rgba(246,116,0,.82) 52%,
+      rgba(253,188,75,.88) 74%,
+      rgba(237,21,21,0) 100%);
+  background-size:260% 100%;
+  animation:fireFormFlow 14s ease-in-out infinite alternate;
+}
+
+/* Gluehtkerne nur in der Brennzone */
+.kern{
+  position:absolute;border-radius:50%;pointer-events:none;
+}
+.kern-gold{
+  width:38vmax;height:38vmax;left:6%;top:10%;
+  background:radial-gradient(circle,rgba(253,188,75,.7) 0%,rgba(253,188,75,.3) 32%,rgba(253,188,75,0) 60%);
+  animation:kernGold 9s ease-in-out infinite;
+}
+.kern-pink{
+  width:42vmax;height:42vmax;left:-8%;bottom:-6%;
+  background:radial-gradient(circle,rgba(237,21,21,.8) 0%,rgba(237,21,21,.35) 32%,rgba(237,21,21,0) 60%);
+  animation:kernPink 7s ease-in-out infinite;
+}
+.kern-cold{ /* der einzige kalte Funke: Blau in der Leere oben rechts */
+  width:28vmax;height:28vmax;right:2%;top:12%;
+  background:radial-gradient(circle,rgba(61,174,233,.6) 0%,rgba(61,174,233,.2) 34%,rgba(61,174,233,0) 62%);
+  animation:coldPulse 10s ease-in-out infinite;
+}
+
+/* Diagonale Brennlinien: 3 scharfe Brennstroeme (statt weicher Diagonalplatte) */
+.stream{
+  position:absolute;right:-12vmax;top:8%;
+  width:130vmax;height:22vmax;
+  transform:rotate(-13deg);
+  pointer-events:none;
+}
+.stream-a{
+  background:linear-gradient(90deg,
+    rgba(22,25,37,0) 0%,
+    rgba(133,0,247,.8) 24%,
+    rgba(237,21,21,.85) 52%,
+    rgba(253,188,75,.9) 78%,
+    rgba(237,21,21,0) 100%);
+  background-size:220% 100%;
+  animation:streamFlow 11s ease-in-out infinite alternate;
+}
+.stream-b{
+  top:30%;
+  background:linear-gradient(90deg,
+    rgba(22,25,37,0) 0%,
+    rgba(237,21,21,.6) 30%,
+    rgba(246,116,0,.75) 60%,
+    rgba(246,116,0,0) 100%);
+  background-size:240% 100%;
+  animation:streamFlow 13s ease-in-out infinite alternate-reverse;
+}
+.stream-c{
+  top:64%;
+  background:linear-gradient(90deg,
+    rgba(22,25,37,0) 0%,
+    rgba(133,0,247,.5) 40%,
+    rgba(237,21,21,.65) 72%,
+    rgba(237,21,21,0) 100%);
+  background-size:250% 100%;
+  animation:streamFlow 15s ease-in-out infinite alternate;
+}
+
+/* Vignette nur im Osten: verstaerkt den Dunkel/Hell-Kontrast */
+.east-shade{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(22,25,37,0) 52%,rgba(22,25,37,.42) 100%);
+  pointer-events:none;
+}
+
+/* ================= GLAS: Die Insel ================= */
+.stage{
+  position:relative;z-index:1;
+  min-height:100svh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(1rem,3vw,1.6rem);
+  padding:calc(clamp(3rem,7vh,4.5rem) + env(safe-area-inset-top)) clamp(1rem,4vw,3rem) calc(clamp(5rem,12vh,7rem) + env(safe-area-inset-bottom));
+}
+.wobble-wrap{
+  transform-origin:50% 100%;
+  animation:jelly 7s ease-in-out infinite,cardFloat 8s ease-in-out infinite alternate;
+  will-change:transform;
+}
+.card{
+  position:relative;overflow:hidden;
+  width:min(90vw,38rem);
+  padding:clamp(1.8rem,6vw,3.5rem) clamp(1.3rem,5vw,3rem);
+  background:rgba(22,25,37,.5);
+  -webkit-backdrop-filter:blur(16px) saturate(1.6);
+  backdrop-filter:blur(16px) saturate(1.6);
+  border:1px solid rgba(255,255,255,.36);
+  border-top-color:rgba(255,255,255,.6);
+  border-radius:clamp(18px,3vw,24px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.32),
+    0 30px 70px rgba(22,25,37,.55);
+  text-align:center;
+  contain:layout paint;
+  animation:cardSettle .9s ease-out backwards;
+}
+.card::before{ /* Sweep: Glas physikalisch sichtbar machen (wie V7.1) */
+  content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:34%;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.28) 50%,rgba(255,255,255,0) 100%);
+  transform:translateX(-170%) skewX(-14deg);
+  animation:sweep 6s ease-in-out 1s infinite;
+  pointer-events:none;
+}
+.eyebrow{
+  font-size:clamp(.68rem,2.3vw,.9rem);
+  font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.9);
+  text-shadow:0 1px 10px rgba(22,25,37,.75);
+  margin-bottom:clamp(1rem,3vw,1.4rem);
+}
+.statement{
+  font-size:clamp(2.6rem,11.5vw,4.9rem);
+  font-weight:900;line-height:.96;letter-spacing:-.015em;
+  text-transform:uppercase;
+  text-shadow:0 2px 22px rgba(22,25,37,.6);
+}
+.statement .line{display:block}
+.line-1{animation:reveal .75s var(--overshoot) .3s backwards}
+.line-3{animation:reveal .75s var(--overshoot) 1.9s backwards}
+.statement .hot{
+  display:inline-block;
+  padding:.03em .2em;border-radius:.14em;
+  background:rgba(22,25,37,.74);
+  color:var(--pink);
+  text-shadow:0 0 30px rgba(237,21,21,.95);
+  box-shadow:0 0 30px rgba(237,21,21,.5),inset 0 1px 0 rgba(255,255,255,.2);
+  animation:revealHot .8s var(--overshoot) 1.1s backwards,
+            pinkHalo 2.8s ease-in-out 2s infinite;
+}
+.prompt{
+  margin-top:clamp(1.2rem,3.5vw,1.8rem);
+  font-family:ui-monospace,"Cascadia Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  font-size:clamp(.75rem,2.7vw,1rem);
+  color:var(--tip);
+  text-shadow:0 1px 8px rgba(22,25,37,.85);
+  min-height:1.4em;
+}
+.prompt .user{color:var(--green)}
+.prompt .path{color:var(--blue)}
+.prompt .dollar{color:var(--gold)}
+.caret{
+  display:inline-block;width:.55em;height:1.05em;margin-left:.15em;
+  background:var(--pink);vertical-align:text-bottom;
+  animation:blink 1.05s steps(1) infinite;
+}
+
+/* ================= Status-Insel (wie V7) ================= */
+.status{
+  position:fixed;left:clamp(.9rem,3vw,2rem);
+  bottom:calc(clamp(.9rem,3vw,2rem) + env(safe-area-inset-bottom));
+  z-index:2;display:inline-flex;align-items:center;gap:.55rem;
+  padding:.65rem 1rem;
+  background:rgba(22,25,37,.55);
+  -webkit-backdrop-filter:blur(14px) saturate(1.6);
+  backdrop-filter:blur(14px) saturate(1.6);
+  border:1px solid rgba(255,255,255,.3);
+  border-radius:14px;
+  box-shadow:0 14px 34px rgba(22,25,37,.5),inset 0 1px 0 rgba(255,255,255,.22);
+  font-family:ui-monospace,"Cascadia Mono",Menlo,monospace;
+  font-size:.78rem;color:var(--tip);
+  animation:cardSettle .9s ease-out .5s backwards,statusBob 7s ease-in-out 1.7s infinite alternate;
+}
+.status .dot{
+  width:.6em;height:.6em;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 12px rgba(17,209,22,.95);
+  animation:dotPulse 2.2s ease-in-out infinite;
+}
+.status b{color:var(--yellow);text-shadow:0 0 10px rgba(201,206,59,.6)}
+
+/* ================= Keyframes (13) — keine Drosselung (D-005) ================= */
+@keyframes fireWallBreathe{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.04)}
+}
+@keyframes fireFormFlow{
+  0%{background-position:0% 50%}
+  100%{background-position:100% 50%}
+}
+@keyframes streamFlow{
+  0%{background-position:0% 50%}
+  100%{background-position:100% 50%}
+}
+@keyframes kernGold{
+  0%,100%{transform:translate(0,0) scale(1);opacity:.85}
+  50%{transform:translate(-4%,5%) scale(1.14);opacity:1}
+}
+@keyframes kernPink{
+  0%,100%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(5%,-4%) scale(1.1)}
+}
+@keyframes coldPulse{
+  0%,100%{opacity:.7;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.12)}
+}
+@keyframes jelly{
+  0%,100%{transform:skewX(0) scale(1)}
+  24%{transform:skewX(1deg) scaleX(1.01) scaleY(.992)}
+  48%{transform:skewX(-.8deg) scaleX(.994) scaleY(1.008)}
+  74%{transform:skewX(.35deg) scaleX(1) scaleY(1)}
+}
+@keyframes cardFloat{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(-9px)}
+}
+@keyframes sweep{
+  0%{transform:translateX(-170%) skewX(-14deg)}
+  55%,100%{transform:translateX(430%) skewX(-14deg)}
+}
+@keyframes reveal{
+  0%{opacity:0;transform:translateY(14px);filter:blur(9px)}
+  100%{opacity:1;transform:translateY(0);filter:blur(0)}
+}
+@keyframes revealHot{
+  0%{opacity:0;transform:scale(.84)}
+  70%{opacity:1;transform:scale(1.06)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes pinkHalo{
+  0%,100%{text-shadow:0 0 24px rgba(237,21,21,.85)}
+  50%{text-shadow:0 0 46px rgba(237,21,21,1),0 0 90px rgba(133,0,247,.55)}
+}
+@keyframes blink{
+  0%,49%{opacity:1}
+  50%,100%{opacity:0}
+}
+@keyframes cardSettle{
+  0%{opacity:0;transform:translateY(18px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+@keyframes statusBob{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(-5px)}
+}
+@keyframes dotPulse{
+  0%,100%{opacity:.55;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.12)}
+}
+
+/* ================= Layout-Feinheiten ================= */
+@media (min-width:720px){
+  .statement{letter-spacing:-.025em}
+}
+@media (max-width:560px){
+  .status{position:static;margin-top:1rem;animation:cardSettle .9s ease-out .5s backwards}
+  .wobble-wrap{animation-duration:10s}
+}
+@media (hover:none){.card:hover{animation:inherit}}
+/* D-005: kein prefers-reduced-motion-Block */
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <div class="fire-wall"></div>
+  <div class="fire-form"></div>
+  <div class="stream stream-a"></div>
+  <div class="stream stream-b"></div>
+  <div class="stream stream-c"></div>
+  <div class="kern kern-gold"></div>
+  <div class="kern kern-pink"></div>
+  <div class="kern kern-cold"></div>
+  <div class="east-shade"></div>
+</div>
+
+<main class="stage">
+  <div class="wobble-wrap">
+    <article class="card" id="hero-card">
+      <p class="eyebrow">Neues aus dem Kopf eines GF</p>
+      <h1 class="statement">
+        <span class="line line-1">Führung.</span>
+        <span class="line hot">Klarheit.</span>
+        <span class="line line-3">Wirkung.</span>
+      </h1>
+      <p class="prompt"><span class="user">marco@mexord</span><span>:</span> <span class="path">~</span><span class="dollar">$ </span><span id="typed"></span><span class="caret" aria-hidden="true"></span></p>
+    </article>
+  </div>
+
+  <aside class="status" role="status" aria-live="off">
+    <span class="dot" aria-hidden="true"></span><span><b>LIVE</b> · dr460nized energy · mexord.blog</span>
+  </aside>
+</main>
+
+<noscript>
+  <style>#typed::after{content:"cat management_ki_opensource.txt"}</style>
+</noscript>
+
+<script>
+(function typing(){
+  const el=document.getElementById("typed");
+  const text="cat management_ki_opensource.txt";
+  let i=0;
+  const iv=setInterval(()=>{
+    el.textContent=text.slice(0,++i);
+    if(i>=text.length)clearInterval(iv);
+  },52);
+})();
+</script>
+</body>
+</html>
