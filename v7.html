@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8500F7">
+<meta name="color-scheme" content="dark">
+<title>mexord ▮ v7 — flamme AN</title>
+<meta name="description" content="Design-Sonde V7: HELL. Saturierte Dr460nized-Fläche (Pink/Lila/Orange, >70% Farbdeckung), Glas-Insel mit Sweep, KLARHEIT in Neonpink auf Kohle-Pille, volle Animation ohne Drosselung.">
+<style>
+/* ==================================================================
+   SONDE V7 — "Flamme AN" (mexord.blog)
+   Betreiber-Befehle, satzgenau umgesetzt:
+   · "HELL" -> Farbe DOMINIERT den Screen (>70% Flaechendeckung,
+     richtig saettig, wie die Garuda-Wallpaper auf seinen Screenshots)
+   · "Scheiss auf Barrierefreiheit" -> kein prefers-reduced-motion-
+     Kill-Switch mehr. Animation laeuft fuer ALLE, immer (D-005)
+   · Garuda = Pink/Lila/Gelb NEON: Flammen-Linear als Basis
+     (Violett oben -> Pink Mitte -> Orange unten), dazu RADIALE
+     Gluehtkerne (Gold, Blau-Funken) — berechnet, keine Muster (D-003)
+   · Glas kommt durch TITELBILD-Saettigung hinten raus: Sat-Grad
+     hinter der Karte bleibt hell, Karte rgba .42 + Sweep = Glas
+   Farben ausschliesslich sweet.colors · D-001 (kein Chrome) ·
+   D-002 (Statement-Set B)
+   ================================================================== */
+:root{
+  --deep:#161925;
+  --violet:#8500F7;
+  --pink:#ED1515;
+  --orange:#F67400;
+  --yellow:#C9CE3B;
+  --green:#11D116;
+  --blue:#3DAEE9;
+  --gold:#FDBC4B;
+  --white:#FFFFFF;
+  --tip:#BDC3C7;
+  --overshoot:cubic-bezier(.34,1.56,.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  color:var(--white);
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  overflow-x:hidden;
+  min-height:100svh;
+  /* DIE FLAMME — deckend, saettig, von oben nach unten brennend */
+  background:
+    linear-gradient(168deg,
+      #8500F7 0%,
+      #ED1515 42%,
+      #F67400 78%,
+      #161925 115%);
+  background-attachment:fixed;
+}
+::selection{background:var(--pink);color:var(--white)}
+
+/* ---------- Gluehtkerne ueber der Flamme (Tiefe, keine Muster) ---------- */
+.bg{position:fixed;inset:0;overflow:hidden;z-index:0}
+.kern{
+  position:absolute;border-radius:50%;pointer-events:none;
+  mix-blend-mode:screen;
+}
+.kern-gold{ /* heisser Funke oben rechts */
+  width:44vmax;height:44vmax;right:-12vmax;top:-8vmax;
+  background:radial-gradient(circle,rgba(253,188,75,.75) 0%,rgba(253,188,75,.3) 30%,rgba(253,188,75,0) 62%);
+  animation:kernGold 9s ease-in-out infinite;
+}
+.kern-pink{ /* Gluehpunkt Mitte-links = Flammenherz */
+  width:50vmax;height:50vmax;left:-14vmax;top:22%;
+  background:radial-gradient(circle,rgba(237,21,21,.8) 0%,rgba(237,21,21,.35) 32%,rgba(237,21,21,0) 60%);
+  animation:kernPink 7s ease-in-out infinite;
+}
+.kern-blue{ /* kalte Kante unten rechts: Kontrastfunken */
+  width:34vmax;height:34vmax;right:-6vmax;bottom:-6vmax;
+  background:radial-gradient(circle,rgba(61,174,233,.6) 0%,rgba(61,174,233,.22) 34%,rgba(61,174,233,0) 62%);
+  animation:kernBlue 11s ease-in-out infinite;
+}
+.flame-drift{ /* die Flamme selbst atmet: grosse weisse Heiss-Schicht */
+  position:absolute;inset:-20%;
+  background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.16) 0%,rgba(255,255,255,0) 55%);
+  mix-blend-mode:screen;
+  animation:flameBreathe 8s ease-in-out infinite;
+}
+.vignette{ /* nur ganz aussen abdunkeln, Mitte bleibt hell */
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,rgba(22,25,37,0) 40%,rgba(22,25,37,.34) 100%);
+}
+
+/* ---------- DIE Glas-Insel ---------- */
+.stage{
+  position:relative;z-index:1;
+  min-height:100svh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(1rem,3vw,1.6rem);
+  padding:calc(clamp(3rem,7vh,4.5rem) + env(safe-area-inset-top)) clamp(1rem,4vw,3rem) calc(clamp(5rem,12vh,7rem) + env(safe-area-inset-bottom));
+}
+.wobble-wrap{
+  transform-origin:50% 100%;
+  animation:jelly 7s ease-in-out infinite,cardFloat 8s ease-in-out infinite alternate;
+  will-change:transform;
+}
+.card{
+  position:relative;overflow:hidden;
+  width:min(90vw,38rem);
+  padding:clamp(1.8rem,6vw,3.5rem) clamp(1.3rem,5vw,3rem);
+  background:rgba(22,25,37,.42);
+  -webkit-backdrop-filter:blur(14px) saturate(1.6);
+  backdrop-filter:blur(14px) saturate(1.6);
+  border:1px solid rgba(255,255,255,.34);
+  border-top-color:rgba(255,255,255,.55);
+  border-radius:clamp(18px,3vw,24px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.3),
+    0 30px 70px rgba(22,25,37,.55);
+  text-align:center;
+  contain:layout paint;
+  animation:cardSettle .9s ease-out backwards;
+}
+.card::before{ /* Sweep: der sichtbare Glas-Beweis */
+  content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:32%;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.2) 50%,rgba(255,255,255,0) 100%);
+  transform:translateX(-170%) skewX(-14deg);
+  animation:sweep 7s ease-in-out 1.3s infinite;
+  pointer-events:none;
+}
+.eyebrow{
+  font-size:clamp(.68rem,2.3vw,.9rem);
+  font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.88);
+  text-shadow:0 1px 10px rgba(22,25,37,.7);
+  margin-bottom:clamp(1rem,3vw,1.4rem);
+}
+.statement{
+  font-size:clamp(2.6rem,11.5vw,4.9rem);
+  font-weight:900;line-height:.96;letter-spacing:-.015em;
+  text-transform:uppercase;
+  text-shadow:0 2px 22px rgba(22,25,37,.55);
+}
+.statement .line{display:block}
+.line-1{animation:reveal .75s var(--overshoot) .3s backwards}
+.line-3{animation:reveal .75s var(--overshoot) 1.9s backwards}
+.statement .hot{ /* Neonpink auf Kohle-Pille: Feuer, das im Glas haengt */
+  display:inline-block;
+  padding:.03em .2em;border-radius:.14em;
+  background:rgba(22,25,37,.72);
+  color:var(--pink);
+  text-shadow:0 0 30px rgba(237,21,21,.95);
+  box-shadow:0 0 30px rgba(237,21,21,.5),inset 0 1px 0 rgba(255,255,255,.16);
+  animation:revealHot .8s var(--overshoot) 1.1s backwards,
+            pinkHalo 2.8s ease-in-out 2s infinite;
+}
+.prompt{
+  margin-top:clamp(1.2rem,3.5vw,1.8rem);
+  font-family:ui-monospace,"Cascadia Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  font-size:clamp(.75rem,2.7vw,1rem);
+  color:var(--tip);
+  text-shadow:0 1px 8px rgba(22,25,37,.8);
+  min-height:1.4em;
+}
+.prompt .user{color:var(--green)}
+.prompt .path{color:var(--blue)}
+.prompt .dollar{color:var(--gold)}
+.caret{
+  display:inline-block;width:.55em;height:1.05em;margin-left:.15em;
+  background:var(--pink);vertical-align:text-bottom;
+  animation:blink 1.05s steps(1) infinite;
+}
+
+/* ---------- EINE Status-Insel links unten ---------- */
+.status{
+  position:fixed;left:clamp(.9rem,3vw,2rem);
+  bottom:calc(clamp(.9rem,3vw,2rem) + env(safe-area-inset-bottom));
+  z-index:2;display:inline-flex;align-items:center;gap:.55rem;
+  padding:.65rem 1rem;
+  background:rgba(22,25,37,.55);
+  -webkit-backdrop-filter:blur(14px) saturate(1.6);
+  backdrop-filter:blur(14px) saturate(1.6);
+  border:1px solid rgba(255,255,255,.3);
+  border-radius:14px;
+  box-shadow:0 14px 34px rgba(22,25,37,.5),inset 0 1px 0 rgba(255,255,255,.22);
+  font-family:ui-monospace,"Cascadia Mono",Menlo,monospace;
+  font-size:.78rem;color:var(--tip);
+  animation:cardSettle .9s ease-out .5s backwards,statusBob 7s ease-in-out 1.7s infinite alternate;
+}
+.status .dot{
+  width:.6em;height:.6em;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 12px rgba(17,209,22,.95);
+  animation:dotPulse 2.2s ease-in-out infinite;
+}
+.status b{color:var(--yellow);text-shadow:0 0 10px rgba(201,206,59,.6)}
+
+/* ---------- Keyframes: 11, alle immer aktiv (D-005) ---------- */
+@keyframes kernGold{
+  0%,100%{transform:translate(0,0) scale(1);opacity:.85}
+  50%{transform:translate(-4%,5%) scale(1.14);opacity:1}
+}
+@keyframes kernPink{
+  0%,100%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(5%,-4%) scale(1.1)}
+}
+@keyframes kernBlue{
+  0%,100%{transform:translate(0,0) scale(1.05);opacity:.7}
+  50%{transform:translate(-6%,-5%) scale(1);opacity:1}
+}
+@keyframes flameBreathe{
+  0%,100%{opacity:.55;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.06)}
+}
+@keyframes jelly{
+  0%,100%{transform:skewX(0) scale(1)}
+  24%{transform:skewX(1deg) scaleX(1.01) scaleY(.992)}
+  48%{transform:skewX(-.8deg) scaleX(.994) scaleY(1.008)}
+  74%{transform:skewX(.35deg) scaleX(1) scaleY(1)}
+}
+@keyframes cardFloat{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(-9px)}
+}
+@keyframes sweep{
+  0%{transform:translateX(-170%) skewX(-14deg)}
+  55%,100%{transform:translateX(430%) skewX(-14deg)}
+}
+@keyframes reveal{
+  0%{opacity:0;transform:translateY(14px);filter:blur(9px)}
+  100%{opacity:1;transform:translateY(0);filter:blur(0)}
+}
+@keyframes revealHot{
+  0%{opacity:0;transform:scale(.84)}
+  70%{opacity:1;transform:scale(1.06)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes pinkHalo{
+  0%,100%{text-shadow:0 0 24px rgba(237,21,21,.85)}
+  50%{text-shadow:0 0 46px rgba(237,21,21,1),0 0 90px rgba(133,0,247,.55)}
+}
+@keyframes blink{
+  0%,49%{opacity:1}
+  50%,100%{opacity:0}
+}
+@keyframes cardSettle{
+  0%{opacity:0;transform:translateY(18px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+@keyframes statusBob{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(-5px)}
+}
+@keyframes dotPulse{
+  0%,100%{opacity:.55;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.12)}
+}
+
+/* ---------- Layout-Feinheiten ---------- */
+@media (min-width:720px){
+  .statement{letter-spacing:-.025em}
+}
+@media (max-width:560px){
+  .status{position:static;margin-top:1rem;animation:cardSettle .9s ease-out .5s backwards}
+  .wobble-wrap{animation-duration:10s}
+}
+@media (hover:none){.card:hover{animation:inherit}}
+/* Hinweis: kein prefers-reduced-motion-Block. Betreiber-Entscheidung D-005 */
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <div class="kern kern-gold"></div>
+  <div class="kern kern-pink"></div>
+  <div class="kern kern-blue"></div>
+  <div class="flame-drift"></div>
+  <div class="vignette"></div>
+</div>
+
+<main class="stage">
+  <div class="wobble-wrap">
+    <article class="card" id="hero-card">
+      <p class="eyebrow">Neues aus dem Kopf eines GF</p>
+      <h1 class="statement">
+        <span class="line line-1">Führung.</span>
+        <span class="line hot">Klarheit.</span>
+        <span class="line line-3">Wirkung.</span>
+      </h1>
+      <p class="prompt"><span class="user">marco@mexord</span><span>:</span> <span class="path">~</span><span class="dollar">$ </span><span id="typed"></span><span class="caret" aria-hidden="true"></span></p>
+    </article>
+  </div>
+
+  <aside class="status" role="status" aria-live="off">
+    <!-- data-source: hugo-params (später parameterisiert) -->
+    <span class="dot" aria-hidden="true"></span><span><b>LIVE</b> · dr460nized energy · mexord.blog</span>
+  </aside>
+</main>
+
+<noscript>
+  <style>#typed::after{content:"cat management_ki_opensource.txt"}</style>
+</noscript>
+
+<script>
+const mockData={promptCommand:"cat management_ki_opensource.txt"};
+(function typing(){
+  const el=document.getElementById("typed");
+  const text=mockData.promptCommand;
+  let i=0;
+  const iv=setInterval(()=>{
+    el.textContent=text.slice(0,++i);
+    if(i>=text.length)clearInterval(iv);
+  },52);
+})();
+</script>
+</body>
+</html>
